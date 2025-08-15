@@ -13,3 +13,5 @@ set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
 add_subdirectory(code/external/glad)
 add_subdirectory(code/external/glfw)  
 add_subdirectory(code/application)
+
+target_include_directories(${PROJECT_NAME} PRIVATE code/external/glfw/include)
