@@ -1,0 +1,40 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\out\\build\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\main.cpp",
+              "RelativeDocumentMoniker": "..\\..\\code\\application\\src\\main.cpp",
+              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\main.cpp",
+              "RelativeToolTip": "..\\..\\code\\application\\src\\main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-08-15T16:14:18.321Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

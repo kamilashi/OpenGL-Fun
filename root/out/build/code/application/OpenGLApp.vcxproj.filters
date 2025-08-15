@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4C079C4E-E349-35CC-915D-6601C7872EDD}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
