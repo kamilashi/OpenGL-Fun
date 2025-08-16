@@ -24,6 +24,7 @@ void main()
 #shader fragment
 #version 330 core
 #include helpers.glsl
+#include noises.glsl
 
 in vec2 TexCoord;
 in vec3 Normal; 
@@ -39,13 +40,11 @@ void main()
 {
     vec3 norm = normalize(Normal);
 
-    vec3 lightPos = vec3(2.0, 2.0, -2.0);
-    vec3 lightDir = normalize( lightPos - WorldPos);
-    float dot = (dot(norm, lightDir));
+    float dot =dot(norm, uMainLightDirection);
 
-   uvec2 seed = uvec2(abs(WorldPos.x * WorldPos.y / TexCoord.x * 50.0f + WorldPos.z), abs(WorldPos.z * WorldPos.y / TexCoord.y * 50.0f + WorldPos.x));
+    vec2 seed = vec2((WorldPos.x * WorldPos.y / TexCoord.x * 50.0 + WorldPos.z), (WorldPos.z * WorldPos.y / TexCoord.y * 50.0 + WorldPos.x));
     
-    float random = rand01(seed);
+    float random = GradientNoise01(seed, 10.0); //rand01(seed);
     float multiplier = 0.0;
     if(random > (1.0 + dot))
     {
@@ -53,7 +52,6 @@ void main()
     }
 
     vec3 diffuse = multiplier * uMainColor;
-    float normalizedDot = 0.5*(dot + 1);
 
-    FragColor = vec4( max(dot, 0) * uMainLightColor, 1.0);
+    FragColor = vec4( diffuse * uMainLightColor, 1.0);
 }
