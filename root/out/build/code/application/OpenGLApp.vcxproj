@@ -354,6 +354,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\src\main.cpp" />
     <ClCompile Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\src\shadersystem.cpp" />
+    <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\camera.h" />
     <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\shadersystem.h" />
     <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\types.h" />
     <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated\config.hpp" />

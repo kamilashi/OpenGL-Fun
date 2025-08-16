@@ -9,6 +9,7 @@
 
 #include "types.h"
 #include "shadersystem.h"
+#include "camera.h"
 #include "config.hpp"
 
 const struct WindowParams
@@ -27,10 +28,6 @@ unsigned int vertexIndices[] = {
 	0, 1, 3,  
 	1, 2, 3  
 };
-
-uint VBO;
-uint EBO;
-uint shaderProgram;
 
 static uint compileStage(GLenum type, const std::string& src, const char* label) {
 	uint id = glCreateShader(type);
@@ -92,11 +89,27 @@ inline uint loadShaderProgram(const char* name)
 	return linkProgram(vs, fs);
 }
 
-void onWindowResize(GLFWwindow* win, int width, int height) {
-	if (height == 0) 
+const struct ViewportParams
+{
+	int width;
+	int height;
+
+	void recalculate(int width, float aspectRatio)
 	{
-		height = 1;
+		this->width = width;
+		height = static_cast<int>(width / aspectRatio);
 	}
+};
+
+WindowParams startupParams;
+ViewportParams defaultWindowParams;
+PerspCameraParams cameraParams;
+Camera camera;
+
+void onWindowResize(GLFWwindow* pWin, int width, int height /*, CurrentWindowParams* pParams, Camera* pCamera*/)
+{
+	camera.createPerspectiveCamera(cameraParams, width, height);
+
 	glViewport(0, 0, width, height);
 }
 
@@ -111,19 +124,15 @@ int runWindow()
 
 	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
-	WindowParams startupParams;
-	int width = static_cast<int>(mode->width / 2.0f);
-	int height = static_cast<int>(width / startupParams.aspectRatio);
+	defaultWindowParams.recalculate(static_cast<int>(mode->width / 2.0f), startupParams.aspectRatio);
 
-	window = glfwCreateWindow(static_cast<int>(mode->width / 2.0f), static_cast<int>(mode->height / 2.0f), "OpenGLApp", nullptr, nullptr);
+	window = glfwCreateWindow(defaultWindowParams.width, defaultWindowParams.height, "OpenGLApp", nullptr, nullptr);
 
 	if (!window)
 	{
 		glfwTerminate();
 		return -1;
 	}
-
-	glfwSetFramebufferSizeCallback(window, onWindowResize);
 
 	glfwMakeContextCurrent(window);
 
@@ -138,13 +147,19 @@ int runWindow()
 
 	//#TODO: move to -> rendering system
 
+	uint VBO;
+	uint EBO;
+	uint shaderProgram;
+
 	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
-	//glEnable(GL_DEPTH_TEST);
-	//glClearDepth(1.0);
+	glEnable(GL_DEPTH_TEST);
+	glClearDepth(1.0);
 
 	glm::mat4 startTransform = glm::mat4(1.0f);
 	glm::mat4 targetTransform = glm::mat4(1.0f);
+
+	targetTransform = glm::rotate(startTransform, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VBO);
@@ -162,20 +177,34 @@ int runWindow()
 
 	glUseProgram(shaderProgram);
 	uint transformLoc = glGetUniformLocation(shaderProgram, "uTransform");
+	uint viewLoc = glGetUniformLocation(shaderProgram, "uView");
+	uint projLoc = glGetUniformLocation(shaderProgram, "uProjection");
+
+	camera = Camera();
+	camera.createPerspectiveCamera( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
+	camera.createView(glm::vec3(3.0f, 1.0f, 3.0f));
+
+	camera.lookAt(glm::vec3(startTransform[3]));
+
+	glfwSetFramebufferSizeCallback(window, onWindowResize);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		//#TODO: move to -> rendering system
 
+/*
 		float totalTime = static_cast<float>(glfwGetTime());
 		float speed = 1.0f;
 		float offset = sin(totalTime * speed);
 
 		targetTransform = glm::translate(startTransform, glm::vec3(offset, 0.0f, 0.0f));
 		targetTransform = glm::rotate(startTransform, offset, glm::vec3(0.0f, 0.0f, 1.0f));
-		targetTransform = glm::scale(startTransform, glm::vec3(0.1 + offset, 0.1 + offset, 1));
+		targetTransform = glm::scale(startTransform, glm::vec3(0.1 + offset, 0.1 + offset, 1));*/
 
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(targetTransform));
+
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera.projMatrix));
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

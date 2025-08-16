@@ -9,6 +9,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\shadersystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
