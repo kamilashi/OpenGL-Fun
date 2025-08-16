@@ -190,16 +190,16 @@ int runWindow()
 	//#TODO: move to -> rendering system
 
 	float vertices[] = {
-		// positions           // texture coords
-		 1.f,  1.f, 0.0f,    1.0f, 1.0f,   // top right
-		 1.f, -1.f, 0.0f,    1.0f, 0.0f,   // bottom right
-		-1.f, -1.f, 0.0f,    0.0f, 0.0f,   // bottom left
-		-1.f,  1.f, 0.0f,    0.0f, 1.0f,    // top left 
+		// positions           // uv         // normals
+	 1.f,  1.f, 0.f,       1.f, 1.f,     0.57735026919f,  0.57735026919f, -0.57735026919f,  // ( 1, 1, 0)
+	 1.f, -1.f, 0.f,       1.f, 0.f,     0.57735026919f, -0.57735026919f, -0.57735026919f,  // ( 1,-1, 0)
+	-1.f, -1.f, 0.f,       0.f, 0.f,    -0.57735026919f, -0.57735026919f, -0.57735026919f,  // (-1,-1, 0)
+	-1.f,  1.f, 0.f,       0.f, 1.f,    -0.57735026919f,  0.57735026919f, -0.57735026919f,  // (-1, 1, 0)
 
-		 1.f,  1.f, 2.0f,    1.0f, 1.0f,   // top right
-		 1.f, -1.f, 2.0f,    1.0f, 0.0f,   // bottom right
-		-1.f, -1.f, 2.0f,    0.0f, 0.0f,   // bottom left
-		-1.f,  1.f, 2.0f,    0.0f, 1.0f    // top left 
+	 1.f,  1.f, 2.f,       1.f, 1.f,     0.57735026919f,  0.57735026919f,  0.57735026919f,  // ( 1, 1, 2)
+	 1.f, -1.f, 2.f,       1.f, 0.f,     0.57735026919f, -0.57735026919f,  0.57735026919f,  // ( 1,-1, 2)
+	-1.f, -1.f, 2.f,       0.f, 0.f,    -0.57735026919f, -0.57735026919f,  0.57735026919f,  // (-1,-1, 2)
+	-1.f,  1.f, 2.f,       0.f, 1.f,    -0.57735026919f,  0.57735026919f,  0.57735026919f   // (-1, 1, 2)
 	};
 
 	unsigned int vertexIndices[] = {
@@ -225,12 +225,12 @@ int runWindow()
 	glm::mat4 terrainTargetTransform = glm::mat4(1.0f);
 	glm::vec3 terrainColor = glm::vec3(0.7f, 0.1f, 0.3f);
 
-	terrainTargetTransform = glm::rotate(terrainStartTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
 	glm::mat4 lightTransform = glm::mat4(1.0f);
 	lightTransform = glm::translate(lightTransform, glm::vec3(2.0f, 2.0f, -2.0f));
 	lightTransform = glm::scale(lightTransform, glm::vec3(0.1f, 0.1f, 0.1f));
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 lightDirection = glm::vec3(terrainTargetTransform[3] - lightTransform[3]);
+	glm::normalize(lightDirection);
 
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VBO);
@@ -242,12 +242,16 @@ int runWindow()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertexIndices), vertexIndices, GL_STATIC_DRAW);
 
 	// positions
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, nullptr);
 	glEnableVertexAttribArray(0);
 
 	// uvs
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// normals
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 
 	defaultShaderProgram = loadShaderProgram("default");
@@ -257,10 +261,12 @@ int runWindow()
 	ShaderUniforms unlitShaderTransfUniforms(unlitShaderProgram);
 
 	uint defaultMainLightColorLoc = glGetUniformLocation(defaultShaderProgram, "uMainLightColor");
+	uint defaultMainLightDirLoc = glGetUniformLocation(defaultShaderProgram, "uMainLightDirection");
 
 	glUseProgram(defaultShaderProgram);
 	setMainColorUniform(defaultShaderTransfUniforms, terrainColor);
 	setCustomUniformV3(defaultMainLightColorLoc, lightColor);
+	setCustomUniformV3(defaultMainLightDirLoc, lightDirection);
 
 	glUseProgram(unlitShaderProgram);
 	setMainColorUniform(unlitShaderTransfUniforms, lightColor);
@@ -273,8 +279,6 @@ int runWindow()
 
 	while (!glfwWindowShouldClose(window))
 	{
-		//#TODO: move to -> rendering system
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(defaultShaderProgram);
@@ -289,6 +293,7 @@ int runWindow()
 		glDrawElements(GL_TRIANGLES, sizeof(vertexIndices) / sizeof(int), GL_UNSIGNED_INT, nullptr);
 
 		glBindVertexArray(0);
+
 
 		glfwSwapBuffers(window);
 
