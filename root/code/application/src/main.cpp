@@ -140,12 +140,21 @@ int runWindow()
 		 1.f,  1.f, 0.0f,    1.0f, 1.0f,   // top right
 		 1.f, -1.f, 0.0f,    1.0f, 0.0f,   // bottom right
 		-1.f, -1.f, 0.0f,    0.0f, 0.0f,   // bottom left
-		-1.f,  1.f, 0.0f,    0.0f, 1.0f    // top left 
+		-1.f,  1.f, 0.0f,    0.0f, 1.0f,    // top left 
+
+		 1.f,  1.f, 2.0f,    1.0f, 1.0f,   // top right
+		 1.f, -1.f, 2.0f,    1.0f, 0.0f,   // bottom right
+		-1.f, -1.f, 2.0f,    0.0f, 0.0f,   // bottom left
+		-1.f,  1.f, 2.0f,    0.0f, 1.0f    // top left 
 	};
 
 	unsigned int vertexIndices[] = {
-		0, 1, 3,
-		1, 2, 3
+	0, 1, 2,   0, 2, 3,
+	4, 6, 5,   4, 7, 6,
+	0, 4, 5,   0, 5, 1,
+	3, 2, 6,   3, 6, 7,
+	0, 3, 7,   0, 7, 4,
+	1, 5, 6,   1, 6, 2
 	};
 
 	uint VBO;
@@ -188,7 +197,7 @@ int runWindow()
 
 	camera = Camera();
 	camera.createPerspectiveProjection( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
-	camera.createView(glm::vec3(3.0f, 3.0f, 3.0f));
+	camera.createView(glm::vec3(5.0f, 5.0f, 5.0f));
 
 	camera.lookAt(glm::vec3(startTransform[3]));
 
