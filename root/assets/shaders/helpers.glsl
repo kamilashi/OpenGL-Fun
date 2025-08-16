@@ -18,3 +18,10 @@ float rand01(uvec2 seed)
 {
     return float(hash_u32(seed)) * (1.0 / 4294967296.0); 
 }
+
+vec2 genSeed(vec3 vertexPos, vec2 fraqUV)
+{
+    vec2 seed = vec2((vertexPos.x * vertexPos.y / fraqUV.x * 50.0 + vertexPos.z), (vertexPos.z * vertexPos.y / fraqUV.y * 50.0 + vertexPos.x));
+
+    return seed;
+}

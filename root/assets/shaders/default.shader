@@ -42,9 +42,9 @@ void main()
 
     float dot =dot(norm, uMainLightDirection);
 
-    vec2 seed = vec2((WorldPos.x * WorldPos.y / TexCoord.x * 50.0 + WorldPos.z), (WorldPos.z * WorldPos.y / TexCoord.y * 50.0 + WorldPos.x));
+    vec2 seed = genSeed(WorldPos, TexCoord);
     
-    float random = GradientNoise01(seed, 10.0); //rand01(seed);
+    float random = GradientNoise01(seed, 10.0); 
     float multiplier = 0.0;
     if(random > (1.0 + dot))
     {
