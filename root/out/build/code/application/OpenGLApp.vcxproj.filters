@@ -6,9 +6,17 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <CustomBuild Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{04DFD8A0-9878-3F6F-9FBA-BA54359585BC}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4C079C4E-E349-35CC-915D-6601C7872EDD}</UniqueIdentifier>
     </Filter>
