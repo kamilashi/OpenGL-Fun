@@ -17,6 +17,42 @@ const struct WindowParams
 	 float aspectRatio = 1.5f;
 };
 
+struct ShaderUniforms
+{
+	uint transformLoc; 
+	uint viewLoc;
+	uint projLoc; 
+	uint mainColorLoc;
+
+/*
+	uint customUniforms[8];
+	short count;*/
+
+	ShaderUniforms(uint shaderProgram)
+	{
+		initBasicUniforms(shaderProgram);
+	}
+
+	void initBasicUniforms(uint shaderProgram)
+	{
+		transformLoc = glGetUniformLocation(shaderProgram, "uTransform");
+		viewLoc = glGetUniformLocation(shaderProgram, "uView");
+		projLoc = glGetUniformLocation(shaderProgram, "uProjection");
+
+		mainColorLoc = glGetUniformLocation(shaderProgram, "uMainColor");
+	}
+
+/*
+	uint initCustomUniform(uint shaderProgram, const char* name)
+	{
+		//ASSERT(count < sizeof(customUniforms) / sizeof(uint), "Increase the size of customUniforms");
+
+		uint index = count;
+		customUniforms[count++] = glGetUniformLocation(shaderProgram, name);
+		return index;
+	}*/
+};
+
 static uint compileStage(GLenum type, const std::string& src, const char* label) {
 	uint id = glCreateShader(type);
 	const char* csrc = src.c_str();
@@ -101,6 +137,23 @@ void onWindowResize(GLFWwindow* pWin, int width, int height /*, CurrentWindowPar
 	glViewport(0, 0, width, height);
 }
 
+void setTransformUniforms(ShaderUniforms minUniforms, Camera camera, const glm::mat4& transform)
+{
+	glUniformMatrix4fv(minUniforms.transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+	glUniformMatrix4fv(minUniforms.viewLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+	glUniformMatrix4fv(minUniforms.projLoc, 1, GL_FALSE, glm::value_ptr(camera.projMatrix));
+}
+
+void setMainColorUniform(ShaderUniforms minUniforms, const glm::vec3& color)
+{
+	glUniform3f(minUniforms.mainColorLoc, color.x, color.y, color.z);
+}
+
+void setCustomUniformV3(uint uniformLoc, const glm::vec3& color)
+{
+	glUniform3f(uniformLoc, color.x, color.y, color.z);
+}
+
 int runWindow()
 {
 	GLFWwindow* window;
@@ -132,6 +185,7 @@ int runWindow()
 		return -1;
 	}
 
+	glfwSetFramebufferSizeCallback(window, onWindowResize);
 
 	//#TODO: move to -> rendering system
 
@@ -159,17 +213,24 @@ int runWindow()
 
 	uint VBO;
 	uint EBO;
-	uint shaderProgram;
+	uint defaultShaderProgram;
+	uint unlitShaderProgram;
 
 	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 
-	glm::mat4 startTransform = glm::mat4(1.0f);
-	glm::mat4 targetTransform = glm::mat4(1.0f);
+	glm::mat4 terrainStartTransform = glm::mat4(1.0f);
+	glm::mat4 terrainTargetTransform = glm::mat4(1.0f);
+	glm::vec3 terrainColor = glm::vec3(0.7f, 0.1f, 0.3f);
 
-	targetTransform = glm::rotate(startTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	terrainTargetTransform = glm::rotate(terrainStartTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	glm::mat4 lightTransform = glm::mat4(1.0f);
+	lightTransform = glm::translate(lightTransform, glm::vec3(2.0f, 2.0f, -2.0f));
+	lightTransform = glm::scale(lightTransform, glm::vec3(0.1f, 0.1f, 0.1f));
+	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VBO);
@@ -188,42 +249,45 @@ int runWindow()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	shaderProgram = loadShaderProgram("basic");
 
-	glUseProgram(shaderProgram);
-	uint transformLoc = glGetUniformLocation(shaderProgram, "uTransform");
-	uint viewLoc = glGetUniformLocation(shaderProgram, "uView");
-	uint projLoc = glGetUniformLocation(shaderProgram, "uProjection");
+	defaultShaderProgram = loadShaderProgram("default");
+	unlitShaderProgram = loadShaderProgram("unlit");
+
+	ShaderUniforms defaultShaderTransfUniforms(defaultShaderProgram);
+	ShaderUniforms unlitShaderTransfUniforms(unlitShaderProgram);
+
+	uint defaultMainLightColorLoc = glGetUniformLocation(defaultShaderProgram, "uMainLightColor");
+
+	glUseProgram(defaultShaderProgram);
+	setMainColorUniform(defaultShaderTransfUniforms, terrainColor);
+	setCustomUniformV3(defaultMainLightColorLoc, lightColor);
+
+	glUseProgram(unlitShaderProgram);
+	setMainColorUniform(unlitShaderTransfUniforms, lightColor);
 
 	camera = Camera();
 	camera.createPerspectiveProjection( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
 	camera.createView(glm::vec3(5.0f, 5.0f, 5.0f));
 
-	camera.lookAt(glm::vec3(startTransform[3]));
-
-	glfwSetFramebufferSizeCallback(window, onWindowResize);
+	camera.lookAt(glm::vec3(terrainStartTransform[3]));
 
 	while (!glfwWindowShouldClose(window))
 	{
 		//#TODO: move to -> rendering system
 
-/*
-		float totalTime = static_cast<float>(glfwGetTime());
-		float speed = 1.0f;
-		float offset = sin(totalTime * speed);
-
-		targetTransform = glm::translate(startTransform, glm::vec3(offset, 0.0f, 0.0f));
-		targetTransform = glm::rotate(startTransform, offset, glm::vec3(0.0f, 0.0f, 1.0f));
-		targetTransform = glm::scale(startTransform, glm::vec3(0.1 + offset, 0.1 + offset, 1));*/
-
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(targetTransform));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera.projMatrix));
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(defaultShaderProgram);
+		setTransformUniforms(defaultShaderTransfUniforms, camera, terrainTargetTransform);
 
 		glBindVertexArray(VBO);
 		glDrawElements(GL_TRIANGLES, sizeof(vertexIndices) / sizeof(int), GL_UNSIGNED_INT, nullptr);
+
+		glUseProgram(unlitShaderProgram);
+		setTransformUniforms(unlitShaderTransfUniforms, camera, lightTransform);
+		
+		glDrawElements(GL_TRIANGLES, sizeof(vertexIndices) / sizeof(int), GL_UNSIGNED_INT, nullptr);
+
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
