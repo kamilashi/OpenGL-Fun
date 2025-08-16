@@ -1,0 +1,2 @@
+#pragma once
+#define DEFAULT_ASSET_DIR "@CMAKE_BINARY_DIR@/assets"

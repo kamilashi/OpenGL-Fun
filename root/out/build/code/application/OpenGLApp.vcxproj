@@ -86,7 +86,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -108,10 +108,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;GLFW_INCLUDE_NONE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -138,7 +138,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -161,10 +161,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GLFW_INCLUDE_NONE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -191,7 +191,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -214,10 +214,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GLFW_INCLUDE_NONE;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -244,7 +244,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -266,10 +266,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GLFW_INCLUDE_NONE;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\MINE\PROJECTS\OpenGL-Test\root\code\application\.\include;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glfw\include;C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated;C:\MINE\PROJECTS\OpenGL-Test\root\code\external\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -353,7 +353,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\src\main.cpp" />
+    <ClCompile Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\src\shadersystem.cpp" />
+    <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\shadersystem.h" />
     <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\types.h" />
+    <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated\config.hpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

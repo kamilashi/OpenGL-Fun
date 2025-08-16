@@ -2,7 +2,7 @@ file(GLOB HPP_HEADERS CONFIGURE_DEPENDS "./include/*.hpp")
 
 file(GLOB H_HEADERS CONFIGURE_DEPENDS "./include/*.h")
 
-file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS "./src/*.cpp")
+file(GLOB CPP_SOURCES CONFIGURE_DEPENDS "./src/*.cpp")
 
 message(STATUS "application header files found: ${HPP_HEADERS} ${H_HEADERS}")
 message(STATUS "application source files found: ${CPP_SOURCES}")

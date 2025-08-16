@@ -1,10 +1,10 @@
-file(GLOB_RECURSE AP_HPP_HEADERS CONFIGURE_DEPENDS "./include/*.hpp")
+file(GLOB AP_HPP_HEADERS CONFIGURE_DEPENDS "./include/*.hpp")
 
-file(GLOB_RECURSE AP_H_HEADERS CONFIGURE_DEPENDS "./include/*.h")
+file(GLOB AP_H_HEADERS CONFIGURE_DEPENDS "./include/*.h")
 
-file(GLOB_RECURSE AP_CPP_SOURCES CONFIGURE_DEPENDS "./src/*.cpp")
+file(GLOB AP_CPP_SOURCES CONFIGURE_DEPENDS "./src/*.cpp")
 
-file(GLOB_RECURSE AP_C_SOURCES CONFIGURE_DEPENDS "./src/*.c")
+file(GLOB AP_C_SOURCES CONFIGURE_DEPENDS "./src/*.c")
 
 message(STATUS "Module header files found: ${AP_H_HEADERS} ${AP_HPP_HEADERS} ")
 message(STATUS "Module source files found: ${AP_CPP_SOURCES} ${AP_C_SOURCES}")

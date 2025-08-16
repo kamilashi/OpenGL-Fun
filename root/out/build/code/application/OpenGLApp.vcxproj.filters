@@ -4,9 +4,18 @@
     <ClCompile Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\src\shadersystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\shadersystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\code\application\include\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\MINE\PROJECTS\OpenGL-Test\root\out\build\generated\config.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

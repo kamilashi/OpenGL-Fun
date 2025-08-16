@@ -15,3 +15,16 @@ add_subdirectory(code/external/glfw)
 add_subdirectory(code/application)
 
 target_include_directories(${PROJECT_NAME} PRIVATE code/external/glfw/include)
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/cmake_config.hpp.in
+  ${CMAKE_BINARY_DIR}/generated/config.hpp
+  @ONLY
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/generated)
+
+file(GLOB GEN_HPP_HEADERS CONFIGURE_DEPENDS "${CMAKE_BINARY_DIR}/generated/*.hpp")
+message(STATUS "Generated header files found: ${GEN_HPP_HEADERS}")
+
+target_sources(${PROJECT_NAME} PRIVATE ${GEN_HPP_HEADERS})
