@@ -133,8 +133,12 @@ int runWindow()
 	//glEnable(GL_DEPTH_TEST);
 	//glClearDepth(1.0);
 
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::mat4 startTransform = glm::mat4(1.0f);
+	glm::mat4 targetTransform = glm::mat4(1.0f);
+
+	/*
+	startTransform = glm::rotate(startTransform, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+	startTransform = glm::scale(startTransform, glm::vec3(0.5, 0.5, 0.5));*/
 
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VBO);
@@ -150,10 +154,21 @@ int runWindow()
 
 	shaderProgram = loadShaderProgram("basic");
 
+	glUseProgram(shaderProgram);
+	uint transformLoc = glGetUniformLocation(shaderProgram, "uTransform");
+
 	while (!glfwWindowShouldClose(window))
 	{
 		//#TODO: move to -> rendering system
-		glUseProgram(shaderProgram);
+
+		float totalTime = static_cast<float>(glfwGetTime());
+		float speed = 1.0f;
+		float offset = sin(totalTime * speed);
+
+		targetTransform = glm::translate(startTransform, glm::vec3(offset, 0.0f, 0.0f));
+		targetTransform = glm::rotate(startTransform, offset, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(targetTransform));
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
