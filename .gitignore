@@ -23,3 +23,7 @@ root/out/build/.vs/*
 **/*.VC.opendb
 **/*.ipch
 **/*.user
+root/out/build/.vs/OpenGLApp/v17/.suo
+root/out/build/.vs/OpenGLApp/v17/Browse.VC.db
+root/out/build/.vs/OpenGLApp/v17/DocumentLayout.backup.json
+root/out/build/.vs/OpenGLApp/v17/DocumentLayout.json
