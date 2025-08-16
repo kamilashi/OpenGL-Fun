@@ -11,6 +11,15 @@ CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
 
+/build/
+/out/
+
 root/out/*
 root/out/build/.vs/*
 
+**/.vs/
+**/*.suo
+**/*.VC.db
+**/*.VC.opendb
+**/*.ipch
+**/*.user
