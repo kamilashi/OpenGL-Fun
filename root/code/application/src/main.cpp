@@ -17,18 +17,6 @@ const struct WindowParams
 	 float aspectRatio = 1.5f;
 };
 
-const float vertexPositions[] = {
-	0.75f, 0.75f, 0.0f,
-	0.75f, -0.75f, 0.0f,
-	-0.75f, -0.75f, 0.0f,
-	-0.75f, 0.75f, 0.0f,
-}; 
-
-unsigned int vertexIndices[] = {  
-	0, 1, 3,  
-	1, 2, 3  
-};
-
 static uint compileStage(GLenum type, const std::string& src, const char* label) {
 	uint id = glCreateShader(type);
 	const char* csrc = src.c_str();
@@ -147,6 +135,19 @@ int runWindow()
 
 	//#TODO: move to -> rendering system
 
+	float vertices[] = {
+		// positions           // texture coords
+		 1.f,  1.f, 0.0f,    1.0f, 1.0f,   // top right
+		 1.f, -1.f, 0.0f,    1.0f, 0.0f,   // bottom right
+		-1.f, -1.f, 0.0f,    0.0f, 0.0f,   // bottom left
+		-1.f,  1.f, 0.0f,    0.0f, 1.0f    // top left 
+	};
+
+	unsigned int vertexIndices[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
+
 	uint VBO;
 	uint EBO;
 	uint shaderProgram;
@@ -159,19 +160,24 @@ int runWindow()
 	glm::mat4 startTransform = glm::mat4(1.0f);
 	glm::mat4 targetTransform = glm::mat4(1.0f);
 
-	targetTransform = glm::rotate(startTransform, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+	targetTransform = glm::rotate(startTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertexIndices), vertexIndices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, nullptr);
+	// positions
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, nullptr);
 	glEnableVertexAttribArray(0);
+
+	// uvs
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	shaderProgram = loadShaderProgram("basic");
 
@@ -182,7 +188,7 @@ int runWindow()
 
 	camera = Camera();
 	camera.createPerspectiveProjection( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
-	camera.createView(glm::vec3(3.0f, 1.0f, 3.0f));
+	camera.createView(glm::vec3(3.0f, 3.0f, 3.0f));
 
 	camera.lookAt(glm::vec3(startTransform[3]));
 
