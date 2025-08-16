@@ -29,7 +29,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
 
 set_target_properties(${PROJECT_NAME}
     PROPERTIES
-        WIN32_EXECUTABLE ON
+        WIN32_EXECUTABLE OFF
         MACOSX_BUNDLE ON
 )
 
