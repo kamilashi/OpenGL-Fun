@@ -3,38 +3,7 @@
   "WorkspaceRootPath": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\out\\build\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\include\\types.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\out\\build\\generated\\config.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|solutionrelative:generated\\config.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdio.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\shadersystem.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\include\\shadersystem.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A9652467-D457-355F-8870-D19711D73346}|ALL_BUILD.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\CMakeLists.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D6879AAD-72C9-3BBA-A8ED-D3FEC7CCB84D}|code\\application\\OpenGLApp.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\CMakeLists.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5761CA33-E49C-3204-8BC4-EE6649F64327}|code\\external\\glad\\glad.vcxproj|C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\external\\glad\\CMakeLists.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7445E6F4-F2D1-2079-4E31-75786E4E0F80}|..\\..\\..\\..\\..\\..\\Users\\shiza\\AppData\\Roaming\\Microsoft\\VisualStudio\\17.0_31ae76f2\\SingleFileISense\\_sfi_7003d7c6-55d6-467e-b1d8-cf19fa3a96b5_.vcxproj|C:\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -44,7 +13,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -52,141 +21,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "stdio.h",
-              "DocumentMoniker": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdio.h",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdio.h",
-              "ToolTip": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdio.h",
-              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdio.h",
-              "ViewState": "AgIAAF4FAAAAAAAAAAAjwG8FAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-08-16T10:57:34.606Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "types.h",
-              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\include\\types.h",
-              "RelativeDocumentMoniker": "..\\..\\code\\application\\include\\types.h",
-              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\include\\types.h",
-              "RelativeToolTip": "..\\..\\code\\application\\include\\types.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-08-16T10:24:41.073Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "config.hpp",
-              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\out\\build\\generated\\config.hpp",
-              "RelativeDocumentMoniker": "generated\\config.hpp",
-              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\out\\build\\generated\\config.hpp",
-              "RelativeToolTip": "generated\\config.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-08-16T10:24:36.756Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "CMakeLists.txt",
-              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\external\\glad\\CMakeLists.txt",
-              "RelativeDocumentMoniker": "..\\..\\code\\external\\glad\\CMakeLists.txt",
-              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\external\\glad\\CMakeLists.txt",
-              "RelativeToolTip": "..\\..\\code\\external\\glad\\CMakeLists.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2025-08-16T10:09:49.643Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "CMakeLists.txt",
-              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\CMakeLists.txt",
-              "RelativeDocumentMoniker": "..\\..\\code\\application\\CMakeLists.txt",
-              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\CMakeLists.txt",
-              "RelativeToolTip": "..\\..\\code\\application\\CMakeLists.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAABAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2025-08-16T10:04:37.461Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "CMakeLists.txt",
-              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\CMakeLists.txt",
-              "RelativeDocumentMoniker": "..\\..\\CMakeLists.txt",
-              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\CMakeLists.txt",
-              "RelativeToolTip": "..\\..\\CMakeLists.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAA6AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2025-08-16T10:02:07.4Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "convertlocalspacesystem.cpp",
-              "DocumentMoniker": "C:\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.cpp",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.cpp",
-              "ToolTip": "C:\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.cpp",
-              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-08-16T09:13:46.792Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "convertlocalspacesystem.hpp",
-              "DocumentMoniker": "C:\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.hpp",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.hpp",
-              "ToolTip": "C:\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.hpp",
-              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\unit4projects\\dsx\\root\\code\\local\\modules\\runtime\\dsx\\simulation\\sources\\systems\\convertlocalspacesystem.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-08-16T09:13:29.147Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "shadersystem.cpp",
-              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\shadersystem.cpp",
-              "RelativeDocumentMoniker": "..\\..\\code\\application\\src\\shadersystem.cpp",
-              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\shadersystem.cpp",
-              "RelativeToolTip": "..\\..\\code\\application\\src\\shadersystem.cpp",
-              "ViewState": "AgIAADUAAAAAAAAAAAApwEgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-08-16T08:51:13.108Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "shadersystem.h",
-              "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\include\\shadersystem.h",
-              "RelativeDocumentMoniker": "..\\..\\code\\application\\include\\shadersystem.h",
-              "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\include\\shadersystem.h",
-              "RelativeToolTip": "..\\..\\code\\application\\include\\shadersystem.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAATAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-08-16T08:51:08.526Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\main.cpp",
               "RelativeDocumentMoniker": "..\\..\\code\\application\\src\\main.cpp",
               "ToolTip": "C:\\MINE\\PROJECTS\\OpenGL-Test\\root\\code\\application\\src\\main.cpp",
               "RelativeToolTip": "..\\..\\code\\application\\src\\main.cpp",
-              "ViewState": "AgIAACwAAAAAAAAAAAAawDQAAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAAAGIAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-08-15T16:14:18.321Z",
               "EditorCaption": ""
