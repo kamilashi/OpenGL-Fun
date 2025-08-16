@@ -92,6 +92,14 @@ inline uint loadShaderProgram(const char* name)
 	return linkProgram(vs, fs);
 }
 
+void onWindowResize(GLFWwindow* win, int width, int height) {
+	if (height == 0) 
+	{
+		height = 1;
+	}
+	glViewport(0, 0, width, height);
+}
+
 int runWindow()
 {
 	GLFWwindow* window;
@@ -115,6 +123,8 @@ int runWindow()
 		return -1;
 	}
 
+	glfwSetFramebufferSizeCallback(window, onWindowResize);
+
 	glfwMakeContextCurrent(window);
 
 	// VSync
@@ -135,10 +145,6 @@ int runWindow()
 
 	glm::mat4 startTransform = glm::mat4(1.0f);
 	glm::mat4 targetTransform = glm::mat4(1.0f);
-
-	/*
-	startTransform = glm::rotate(startTransform, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-	startTransform = glm::scale(startTransform, glm::vec3(0.5, 0.5, 0.5));*/
 
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VBO);
@@ -167,6 +173,7 @@ int runWindow()
 
 		targetTransform = glm::translate(startTransform, glm::vec3(offset, 0.0f, 0.0f));
 		targetTransform = glm::rotate(startTransform, offset, glm::vec3(0.0f, 0.0f, 1.0f));
+		targetTransform = glm::scale(startTransform, glm::vec3(0.1 + offset, 0.1 + offset, 1));
 
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(targetTransform));
 
