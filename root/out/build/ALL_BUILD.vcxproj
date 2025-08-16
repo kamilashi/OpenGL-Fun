@@ -186,6 +186,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{DE3173B6-662B-3A7E-BFCA-4B1D9C92DFD0}</Project>
       <Name>glfw</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\MINE\PROJECTS\OpenGL-Test\root\out\build\code\external\glm\glm\glm_dummy.vcxproj">
+      <Project>{68D5F506-0D94-3F22-85C5-F76FB782D309}</Project>
+      <Name>glm_dummy</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

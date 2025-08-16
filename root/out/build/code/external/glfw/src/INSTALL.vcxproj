@@ -196,7 +196,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\MINE\PROJECTS\OpenGL-Test\root\out\build\ALL_BUILD.vcxproj">
+    <ProjectReference Include="C:\MINE\PROJECTS\OpenGL-Test\root\out\build\code\external\glm\ALL_BUILD.vcxproj">
       <Project>{A9652467-D457-355F-8870-D19711D73346}</Project>
       <Name>ALL_BUILD</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
