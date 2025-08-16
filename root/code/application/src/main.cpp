@@ -108,7 +108,7 @@ Camera camera;
 
 void onWindowResize(GLFWwindow* pWin, int width, int height /*, CurrentWindowParams* pParams, Camera* pCamera*/)
 {
-	camera.createPerspectiveCamera(cameraParams, width, height);
+	camera.createPerspectiveProjection(cameraParams, width, height);
 
 	glViewport(0, 0, width, height);
 }
@@ -181,7 +181,7 @@ int runWindow()
 	uint projLoc = glGetUniformLocation(shaderProgram, "uProjection");
 
 	camera = Camera();
-	camera.createPerspectiveCamera( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
+	camera.createPerspectiveProjection( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
 	camera.createView(glm::vec3(3.0f, 1.0f, 3.0f));
 
 	camera.lookAt(glm::vec3(startTransform[3]));
@@ -202,7 +202,6 @@ int runWindow()
 		targetTransform = glm::scale(startTransform, glm::vec3(0.1 + offset, 0.1 + offset, 1));*/
 
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(targetTransform));
-
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera.projMatrix));
 

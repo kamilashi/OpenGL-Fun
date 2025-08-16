@@ -17,12 +17,12 @@ public:
 	glm::vec3 position;
 
 
-	void createPerspectiveCamera(PerspCameraParams camParams, int winWidth, int winHeight)
+	void createPerspectiveProjection(PerspCameraParams camParams, int winWidth, int winHeight)
 	{
 		projMatrix = glm::perspective(glm::radians(camParams.fov), (float)winWidth / (float)winHeight, camParams.nearPlane, camParams.farPlane);
 	}
 
-	void createOrthoCamera(float left, float right, float top, float bottom, float nearPlane, float farPlane, glm::vec3 viewVector)
+	void createOrthogonalProjection(float left, float right, float top, float bottom, float nearPlane, float farPlane, glm::vec3 viewVector)
 	{
 		projMatrix = glm::ortho(left, right, top, bottom, nearPlane, farPlane);
 	}
