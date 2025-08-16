@@ -78,6 +78,7 @@ static uint linkProgram(uint vs, uint fs)
 
 inline uint loadShaderProgram(const char* name)
 {
+	//#TODO: change this to embed shaders into the exe!!!
 	char shadersDir[100];
 	sprintf(shadersDir, "%s/shaders", DEFAULT_ASSET_DIR);
 
@@ -122,6 +123,12 @@ int runWindow()
 
 
 	//#TODO: move to -> rendering system
+
+	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+
+	//glEnable(GL_DEPTH_TEST);
+	//glClearDepth(1.0);
+
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -141,7 +148,7 @@ int runWindow()
 		//#TODO: move to -> rendering system
 		glUseProgram(shaderProgram);
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindVertexArray(VBO);
 		glDrawElements(GL_TRIANGLES, sizeof(vertexIndices) / sizeof(int), GL_UNSIGNED_INT, nullptr);
