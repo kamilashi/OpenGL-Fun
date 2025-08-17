@@ -15,6 +15,12 @@ add_subdirectory(code/external/glfw)
 add_subdirectory(code/external/glm)  
 add_subdirectory(code/application)
 
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)   
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) 
+
+add_subdirectory(code/external/assimp)  
+target_link_libraries(${PROJECT_NAME}  PRIVATE assimp)
+
 target_include_directories(${PROJECT_NAME} PRIVATE code/external/glfw/include)
 
 configure_file(

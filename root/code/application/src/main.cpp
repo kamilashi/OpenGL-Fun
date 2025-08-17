@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "types.h"
-#include "shadersystem.h"
+#include "assetloader.h"
 #include "camera.h"
 #include "config.hpp"
 
@@ -107,7 +107,7 @@ inline uint loadShaderProgram(const char* name)
 	char shadersDir[100];
 	sprintf(shadersDir, "%s/shaders", DEFAULT_ASSET_DIR);
 
-	ShaderSources src = ShaderSystem::loadShaderFiles(name, shadersDir);
+	Graphics::ShaderSources src = AssetLoader::loadShaderFiles(name, shadersDir);
 	uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
 	uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
 	return linkProgram(vs, fs);
@@ -149,9 +149,14 @@ void setMainColorUniform(ShaderUniforms minUniforms, const glm::vec3& color)
 	glUniform3f(minUniforms.mainColorLoc, color.x, color.y, color.z);
 }
 
-void setCustomUniformV3(uint uniformLoc, const glm::vec3& color)
+void setCustomUniformF3(uint uniformLoc, const glm::vec3& color)
 {
 	glUniform3f(uniformLoc, color.x, color.y, color.z);
+}
+
+void setCustomUniformF(uint uniformLoc, float value)
+{
+	glUniform1f(uniformLoc, value);
 }
 
 int runWindow()
@@ -262,11 +267,12 @@ int runWindow()
 
 	uint defaultMainLightColorLoc = glGetUniformLocation(defaultShaderProgram, "uMainLightColor");
 	uint defaultMainLightDirLoc = glGetUniformLocation(defaultShaderProgram, "uMainLightDirection");
+	uint defaultTimeLoc = glGetUniformLocation(defaultShaderProgram, "uTime");
 
 	glUseProgram(defaultShaderProgram);
 	setMainColorUniform(defaultShaderTransfUniforms, terrainColor);
-	setCustomUniformV3(defaultMainLightColorLoc, lightColor);
-	setCustomUniformV3(defaultMainLightDirLoc, lightDirection);
+	setCustomUniformF3(defaultMainLightColorLoc, lightColor);
+	setCustomUniformF3(defaultMainLightDirLoc, lightDirection);
 
 	glUseProgram(unlitShaderProgram);
 	setMainColorUniform(unlitShaderTransfUniforms, lightColor);
@@ -281,8 +287,11 @@ int runWindow()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		float totalTime = static_cast<float>(glfwGetTime());
+
 		glUseProgram(defaultShaderProgram);
 		setTransformUniforms(defaultShaderTransfUniforms, camera, terrainTargetTransform);
+		setCustomUniformF(defaultTimeLoc, totalTime);
 
 		glBindVertexArray(VBO);
 		glDrawElements(GL_TRIANGLES, sizeof(vertexIndices) / sizeof(int), GL_UNSIGNED_INT, nullptr);
