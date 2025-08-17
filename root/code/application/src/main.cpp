@@ -224,20 +224,20 @@ int runWindow()
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 
-	glm::mat4 terrainStartTransform = glm::mat4(1.0f);
-	glm::mat4 terrainTargetTransform = glm::mat4(1.0f);
+	glm::mat4 terrainTransform = glm::mat4(1.0f);
 	glm::vec3 terrainColor = glm::vec3(0.7f, 0.1f, 0.3f);
 
 	glm::mat4 lightTransform = glm::mat4(1.0f);
 	lightTransform = glm::translate(lightTransform, glm::vec3(2.0f, 2.0f, -2.0f));
 	lightTransform = glm::scale(lightTransform, glm::vec3(0.1f, 0.1f, 0.1f));
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 lightDirection = glm::vec3(terrainTargetTransform[3] - lightTransform[3]);
+	glm::vec3 lightDirection = glm::vec3(terrainTransform[3] - lightTransform[3]);
 	glm::normalize(lightDirection);
 
+	glm::mat4 jetStartTransform = glm::mat4(1.0f);
+	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.7f, 0.0f));
+	jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 jetTransform = glm::mat4(1.0f);
-	jetTransform = glm::translate(jetTransform, glm::vec3(0.0f, 0.0f, 0.0f));
-	jetTransform = glm::rotate(jetTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::vec3 jetColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
 	Graphics::Model terrainCubeModel = AssetLoader::loadModel("terraincube.obj");
@@ -265,7 +265,7 @@ int runWindow()
 	camera = Camera();
 	camera.createPerspectiveProjection( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
 	camera.createView(glm::vec3(5.0f, 9.0f, 5.0f));
-	glm::vec3 lookAtTarget = glm::vec3(terrainStartTransform[3]);
+	glm::vec3 lookAtTarget = glm::vec3(terrainTransform[3]);
 	lookAtTarget.y += 0.5;
 	float cameraOrbitRadius = camera.position.length();
 
@@ -279,17 +279,22 @@ int runWindow()
 		//rotateCamera(&camera, totalTime, 10, lookAtTarget);
 
 		glUseProgram(terrainShaderProgram);
-		setTransformUniforms(terrainShaderUniforms, camera, terrainTargetTransform);
+		setTransformUniforms(terrainShaderUniforms, camera, terrainTransform);
 		setCustomUniformF(terrainShaderUniforms.timeLoc, totalTime);
 
 		terrainCubeModel.draw();
 
 
 		glUseProgram(defaultShaderProgram);
-		setTransformUniforms(defaultShaderUniforms, camera, terrainTargetTransform);
+		setTransformUniforms(defaultShaderUniforms, camera, terrainTransform);
 		setMainColorUniform(defaultShaderUniforms, terrainColor);
 		terrainCubeSidesModel.draw();
 
+		float speed = 1.0f;
+		float offsetScale = 0.3f;
+		float offset = sin(totalTime * speed) * offsetScale;
+
+		jetTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, offset, 0.0f));
 
 		setTransformUniforms(defaultShaderUniforms, camera, jetTransform);
 		setMainColorUniform(defaultShaderUniforms, jetColor);
