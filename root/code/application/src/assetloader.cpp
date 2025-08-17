@@ -10,6 +10,7 @@
 
 #include "assetloader.h"
 #include "graphics.h"
+#include "config.hpp"
 
 using namespace std;
 
@@ -36,50 +37,11 @@ std::string readFile(const std::string& path)
 	return s.str();
 }
 
-extern Graphics::ShaderSources AssetLoader::loadShaderFile(const std::string& path)
+extern Graphics::ShaderSources AssetLoader::loadShaderFiles(const std::string& baseName)
 {
-	std::ifstream in(path);
+	//#TODO: change this to relative path or embed shaders into the exe!!!
+	std::string dir = std::string(DEFAULT_ASSET_DIR) + "/shaders";
 
-	if (!in)
-	{
-		throw std::runtime_error("Failed to open shader file: " + path);
-	}
-
-	std::stringstream ss[2];
-
-	ShaderParseMode mode = ShaderParseMode_NONE;
-
-	std::string line;
-	while (std::getline(in, line)) 
-	{
-		if (line.rfind("#shader", 0) == 0) 
-		{
-			if (line.find("vertex") != std::string::npos)
-			{
-				mode = ShaderParseMode_VERT;
-			}
-			else if (line.find("fragment") != std::string::npos) 
-			{
-				mode = ShaderParseMode_FRAG;
-			}
-			else
-			{
-				mode = ShaderParseMode_NONE;
-			}
-		}
-		else if (mode != ShaderParseMode_NONE)
-		{
-			ss[mode] << line << '\n';
-		}
-	}
-
-	Graphics::ShaderSources shaderSources(ss[ShaderParseMode_VERT].str(), ss[ShaderParseMode_FRAG].str());
-
-	return shaderSources;
-}
-
-extern Graphics::ShaderSources AssetLoader::loadShaderFiles(const std::string& baseName, const std::string& dir)
-{
 	std::string vPath = dir + "/" + baseName + "V.shader";
 	std::string fPath = dir + "/" + baseName + "F.shader";
 
@@ -90,41 +52,44 @@ extern Graphics::ShaderSources AssetLoader::loadShaderFiles(const std::string& b
 
 Graphics::Mesh processMesh(aiMesh* mesh, const aiScene* scene)
 {
-	std::vector<Graphics::VertexData> vertices;
-	std::vector<uint>			  indices;
+	std::vector<Graphics::VertexData>	vertices;
+	std::vector<uint>					 indices;
 
 	for (uint i = 0; i < mesh->mNumVertices; ++i)
 	{
-		Graphics::VertexData v{};
+		Graphics::VertexData vertexData;
 
 		// positions
-		glm::vec3 pos = glm::vec3(mesh->mVertices[i].x,
-			mesh->mVertices[i].y,
-			mesh->mVertices[i].z);
-		v.position = pos;
+		glm::vec3 pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		vertexData.position = pos;
 
 		// normals
 		if (mesh->HasNormals())
 		{
-			glm::vec3 n = glm::vec3(mesh->mNormals[i].x,
-				mesh->mNormals[i].y,
-				mesh->mNormals[i].z);
-			v.normal = n;
+			glm::vec3 n = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+			vertexData.normal = n;
+		}
+
+		// tangent and bitangent
+		if (mesh->HasTangentsAndBitangents())
+		{
+			vertexData.tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+
+			vertexData.bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
 		}
 
 		// texture coords (Assimp stores up to 8 sets; use the first if present)
 		if (mesh->mTextureCoords[0])
 		{
-			glm::vec2 uv = glm::vec2(mesh->mTextureCoords[0][i].x,
-				mesh->mTextureCoords[0][i].y);
-			v.texCoords = uv;
+			glm::vec2 uv = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+			vertexData.texCoords = uv;
 		}
 		else
 		{
-			v.texCoords = glm::vec2(0.0f);
+			vertexData.texCoords = glm::vec2(0.0f);
 		}
 
-		vertices.push_back(v);
+		vertices.push_back(vertexData);
 	}
 
 
@@ -164,13 +129,16 @@ void processNode(vector<Graphics::Mesh>* pMeshes, aiNode* node, const aiScene* s
 
 }
 
-extern Graphics::Model AssetLoader::loadModel(string const& path)
+extern Graphics::Model AssetLoader::loadModel(string const& nameWithExtension)
 {
 	std::vector<Graphics::Mesh> meshes;
 
+	std::string dir = std::string(DEFAULT_ASSET_DIR) + "/models";
+	std::string path = dir + "/" + nameWithExtension;
+
 	// read file via ASSIMP
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	// check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
 	{
@@ -178,7 +146,7 @@ extern Graphics::Model AssetLoader::loadModel(string const& path)
 		return Graphics::Model(meshes);
 	}
 	// retrieve the directory path of the filepath
-	string directory = path.substr(0, path.find_last_of('/'));
+	string directory = dir.substr(0, dir.find_last_of('/'));
 
 	// process ASSIMP's root node recursively
 

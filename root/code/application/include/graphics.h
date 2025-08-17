@@ -24,22 +24,26 @@ namespace Graphics
 	{
 	public:
 		glm::vec3 position;
-		glm::vec3 normal;
 		glm::vec2 texCoords;
+		glm::vec3 normal;
+		glm::vec3 tangent;
+		glm::vec3 bitangent;
 	};
 
 	class Mesh {
 	public:
 		// mesh data
 		std::vector<Graphics::VertexData>       vertices;
-		std::vector<uint>		  indices;
+		std::vector<uint>						indices;
 
-		uint /* VAO,*/ VBO, EBO;
+		uint  VAO, VBO, EBO;
 
 		Mesh(const std::vector<Graphics::VertexData>& verts, const std::vector<uint>& inds) : vertices(verts), indices(inds)
 		{
 			setupMesh();
 		}
+
+		void draw();
 	private:
 		//  render data
 
@@ -52,6 +56,8 @@ namespace Graphics
 		std::vector<Graphics::Mesh> meshes;
 
         Model(const std::vector<Graphics::Mesh>& meshes) : meshes(meshes) {}
+
+		void draw();
 	};
 }
 

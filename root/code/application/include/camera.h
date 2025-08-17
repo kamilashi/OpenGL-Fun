@@ -5,7 +5,7 @@
 
 const struct PerspCameraParams
 {
-	float fov = 45.0f;
+	float fov = 25.0f;
 	float nearPlane = 0.01f;
 	float farPlane = 100.0f;
 };

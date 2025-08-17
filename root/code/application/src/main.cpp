@@ -23,6 +23,9 @@ struct ShaderUniforms
 	uint viewLoc;
 	uint projLoc; 
 	uint mainColorLoc;
+	uint mainLightColorLoc;
+	uint mainLightDirLoc;
+	uint timeLoc;
 
 /*
 	uint customUniforms[8];
@@ -40,6 +43,11 @@ struct ShaderUniforms
 		projLoc = glGetUniformLocation(shaderProgram, "uProjection");
 
 		mainColorLoc = glGetUniformLocation(shaderProgram, "uMainColor");
+
+		mainLightColorLoc = glGetUniformLocation(shaderProgram, "uMainLightColor");
+		mainLightDirLoc = glGetUniformLocation(shaderProgram, "uMainLightDirection");
+
+		timeLoc = glGetUniformLocation(shaderProgram, "uTime");
 	}
 
 /*
@@ -101,13 +109,17 @@ static uint linkProgram(uint vs, uint fs)
 	return prog;
 }
 
+inline void rotateCamera(Camera* camera, float degreeInRad, float distance, glm::vec3 lookAtTarget)
+{
+	float camX = sin(degreeInRad) * distance;
+	float camZ = cos(degreeInRad) * distance;
+
+	camera->viewMatrix = glm::lookAt(glm::vec3(camX, camera->position.y, camZ), lookAtTarget, glm::vec3(0.0, 1.0, 0.0));
+}
+
 inline uint loadShaderProgram(const char* name)
 {
-	//#TODO: change this to embed shaders into the exe!!!
-	char shadersDir[100];
-	sprintf(shadersDir, "%s/shaders", DEFAULT_ASSET_DIR);
-
-	Graphics::ShaderSources src = AssetLoader::loadShaderFiles(name, shadersDir);
+	Graphics::ShaderSources src = AssetLoader::loadShaderFiles(name);
 	uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
 	uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
 	return linkProgram(vs, fs);
@@ -132,6 +144,11 @@ Camera camera;
 
 void onWindowResize(GLFWwindow* pWin, int width, int height /*, CurrentWindowParams* pParams, Camera* pCamera*/)
 {
+	if (height == 0)
+	{
+		return;
+	}
+
 	camera.createPerspectiveProjection(cameraParams, width, height);
 
 	glViewport(0, 0, width, height);
@@ -142,6 +159,12 @@ void setTransformUniforms(ShaderUniforms minUniforms, Camera camera, const glm::
 	glUniformMatrix4fv(minUniforms.transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 	glUniformMatrix4fv(minUniforms.viewLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
 	glUniformMatrix4fv(minUniforms.projLoc, 1, GL_FALSE, glm::value_ptr(camera.projMatrix));
+}
+
+void setMainLightUniforms(ShaderUniforms minUniforms, const glm::vec3& lightColor, const glm::vec3& lightDir)
+{
+	glUniform3f(minUniforms.mainLightColorLoc, lightColor.x, lightColor.y, lightColor.z);
+	glUniform3f(minUniforms.mainLightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 }
 
 void setMainColorUniform(ShaderUniforms minUniforms, const glm::vec3& color)
@@ -194,32 +217,7 @@ int runWindow()
 
 	//#TODO: move to -> rendering system
 
-	float vertices[] = {
-		// positions           // uv         // normals
-	 1.f,  1.f, 0.f,       1.f, 1.f,     0.57735026919f,  0.57735026919f, -0.57735026919f,  // ( 1, 1, 0)
-	 1.f, -1.f, 0.f,       1.f, 0.f,     0.57735026919f, -0.57735026919f, -0.57735026919f,  // ( 1,-1, 0)
-	-1.f, -1.f, 0.f,       0.f, 0.f,    -0.57735026919f, -0.57735026919f, -0.57735026919f,  // (-1,-1, 0)
-	-1.f,  1.f, 0.f,       0.f, 1.f,    -0.57735026919f,  0.57735026919f, -0.57735026919f,  // (-1, 1, 0)
-
-	 1.f,  1.f, 2.f,       1.f, 1.f,     0.57735026919f,  0.57735026919f,  0.57735026919f,  // ( 1, 1, 2)
-	 1.f, -1.f, 2.f,       1.f, 0.f,     0.57735026919f, -0.57735026919f,  0.57735026919f,  // ( 1,-1, 2)
-	-1.f, -1.f, 2.f,       0.f, 0.f,    -0.57735026919f, -0.57735026919f,  0.57735026919f,  // (-1,-1, 2)
-	-1.f,  1.f, 2.f,       0.f, 1.f,    -0.57735026919f,  0.57735026919f,  0.57735026919f   // (-1, 1, 2)
-	};
-
-	unsigned int vertexIndices[] = {
-	0, 1, 2,   0, 2, 3,
-	4, 6, 5,   4, 7, 6,
-	0, 4, 5,   0, 5, 1,
-	3, 2, 6,   3, 6, 7,
-	0, 3, 7,   0, 7, 4,
-	1, 5, 6,   1, 6, 2
-	};
-
-	uint VBO;
 	uint EBO;
-	uint defaultShaderProgram;
-	uint unlitShaderProgram;
 
 	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
@@ -237,71 +235,65 @@ int runWindow()
 	glm::vec3 lightDirection = glm::vec3(terrainTargetTransform[3] - lightTransform[3]);
 	glm::normalize(lightDirection);
 
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glm::mat4 jetTransform = glm::mat4(1.0f);
+	jetTransform = glm::translate(jetTransform, glm::vec3(0.0f, 0.0f, 0.0f));
+	jetTransform = glm::rotate(jetTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 jetColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertexIndices), vertexIndices, GL_STATIC_DRAW);
+	Graphics::Model terrainCubeModel = AssetLoader::loadModel("terraincube.obj");
+	Graphics::Model terrainCubeSidesModel = AssetLoader::loadModel("terraincubesides.obj");
+	Graphics::Model jetModel = AssetLoader::loadModel("jet.obj");
 
-	// positions
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, nullptr);
-	glEnableVertexAttribArray(0);
+	uint defaultShaderProgram = loadShaderProgram("default");
+	uint terrainShaderProgram = loadShaderProgram("terrain");
+	uint unlitShaderProgram = loadShaderProgram("unlit");
 
-	// uvs
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// normals
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-
-	defaultShaderProgram = loadShaderProgram("default");
-	unlitShaderProgram = loadShaderProgram("unlit");
-
-	ShaderUniforms defaultShaderTransfUniforms(defaultShaderProgram);
-	ShaderUniforms unlitShaderTransfUniforms(unlitShaderProgram);
-
-	uint defaultMainLightColorLoc = glGetUniformLocation(defaultShaderProgram, "uMainLightColor");
-	uint defaultMainLightDirLoc = glGetUniformLocation(defaultShaderProgram, "uMainLightDirection");
-	uint defaultTimeLoc = glGetUniformLocation(defaultShaderProgram, "uTime");
+	ShaderUniforms defaultShaderUniforms(defaultShaderProgram);
+	ShaderUniforms terrainShaderUniforms(terrainShaderProgram);
+	ShaderUniforms unlitShaderUniforms(unlitShaderProgram);
 
 	glUseProgram(defaultShaderProgram);
-	setMainColorUniform(defaultShaderTransfUniforms, terrainColor);
-	setCustomUniformF3(defaultMainLightColorLoc, lightColor);
-	setCustomUniformF3(defaultMainLightDirLoc, lightDirection);
+	setMainLightUniforms(defaultShaderUniforms, lightColor, lightDirection);
+
+	glUseProgram(terrainShaderProgram);
+	setMainLightUniforms(terrainShaderUniforms, lightColor, lightDirection);
+	setMainColorUniform(terrainShaderProgram, terrainColor);
 
 	glUseProgram(unlitShaderProgram);
-	setMainColorUniform(unlitShaderTransfUniforms, lightColor);
+	setMainColorUniform(unlitShaderUniforms, lightColor);
 
 	camera = Camera();
 	camera.createPerspectiveProjection( cameraParams, defaultWindowParams.width, defaultWindowParams.height);
-	camera.createView(glm::vec3(5.0f, 5.0f, 5.0f));
+	camera.createView(glm::vec3(5.0f, 9.0f, 5.0f));
+	glm::vec3 lookAtTarget = glm::vec3(terrainStartTransform[3]);
+	lookAtTarget.y += 0.5;
+	float cameraOrbitRadius = camera.position.length();
 
-	camera.lookAt(glm::vec3(terrainStartTransform[3]));
+	camera.lookAt(lookAtTarget);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float totalTime = static_cast<float>(glfwGetTime());
+		//rotateCamera(&camera, totalTime, 10, lookAtTarget);
+
+		glUseProgram(terrainShaderProgram);
+		setTransformUniforms(terrainShaderUniforms, camera, terrainTargetTransform);
+		setCustomUniformF(terrainShaderUniforms.timeLoc, totalTime);
+
+		terrainCubeModel.draw();
+
 
 		glUseProgram(defaultShaderProgram);
-		setTransformUniforms(defaultShaderTransfUniforms, camera, terrainTargetTransform);
-		setCustomUniformF(defaultTimeLoc, totalTime);
+		setTransformUniforms(defaultShaderUniforms, camera, terrainTargetTransform);
+		setMainColorUniform(defaultShaderUniforms, terrainColor);
+		terrainCubeSidesModel.draw();
 
-		glBindVertexArray(VBO);
-		glDrawElements(GL_TRIANGLES, sizeof(vertexIndices) / sizeof(int), GL_UNSIGNED_INT, nullptr);
 
-		glUseProgram(unlitShaderProgram);
-		setTransformUniforms(unlitShaderTransfUniforms, camera, lightTransform);
-		
-		glDrawElements(GL_TRIANGLES, sizeof(vertexIndices) / sizeof(int), GL_UNSIGNED_INT, nullptr);
-
-		glBindVertexArray(0);
+		setTransformUniforms(defaultShaderUniforms, camera, jetTransform);
+		setMainColorUniform(defaultShaderUniforms, jetColor);
+		jetModel.draw();
 
 
 		glfwSwapBuffers(window);
