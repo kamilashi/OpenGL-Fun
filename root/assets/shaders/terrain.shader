@@ -42,18 +42,28 @@ void main()
     float scrollSpeed = 0.1;
     vec2 sampleCoords = TexCoord + vec2(uTime * scrollSpeed, uTime * -scrollSpeed);
 
-    float sampleScale = 10.0;
-    float heightScale = 1.0;
-    float heightOffset = GradientNoise01(sampleCoords, sampleScale) * heightScale;
+    vec3 intensity = vec3(0.7, 1.5, 1.3);
+    float sampleScale = 3.0;
+    float heightMaxAmplitude = intensity.x + intensity.y + intensity.z;
+    float heightOffset = GradientNoise01(sampleCoords, sampleScale) * intensity.x;
+    
+    heightOffset += GradientNoise01(sampleCoords, sampleScale * 2) * intensity.y;
+
+    heightOffset += GradientNoise01(sampleCoords, sampleScale * 4) * intensity.z;
 
     vec3 localPos = aPos;
-    localPos.y += heightOffset - heightScale/3;
+    localPos.y += heightOffset - heightMaxAmplitude/2;
+
+    if(localPos.y < -1)
+    {
+        localPos.y = aPos.y;
+    }
 
     gl_Position = uProjection * uView * uTransform * vec4(localPos, 1.0);
 
     if(dot(aNormal, vec3(0.0, 1.0, 0.0)) > 0)
     {
-        Normal = -normalFromHeightNoise(sampleCoords, 0.1, heightScale,sampleScale, heightOffset);
+        Normal = -normalFromHeightNoise(sampleCoords, 0.1, heightMaxAmplitude, sampleScale * 2, heightOffset);
     }
     else
     {

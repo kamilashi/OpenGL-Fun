@@ -27,10 +27,6 @@ struct ShaderUniforms
 	uint mainLightDirLoc;
 	uint timeLoc;
 
-/*
-	uint customUniforms[8];
-	short count;*/
-
 	ShaderUniforms(uint shaderProgram)
 	{
 		initBasicUniforms(shaderProgram);
@@ -49,16 +45,6 @@ struct ShaderUniforms
 
 		timeLoc = glGetUniformLocation(shaderProgram, "uTime");
 	}
-
-/*
-	uint initCustomUniform(uint shaderProgram, const char* name)
-	{
-		//ASSERT(count < sizeof(customUniforms) / sizeof(uint), "Increase the size of customUniforms");
-
-		uint index = count;
-		customUniforms[count++] = glGetUniformLocation(shaderProgram, name);
-		return index;
-	}*/
 };
 
 static uint compileStage(GLenum type, const std::string& src, const char* label) {
@@ -142,7 +128,7 @@ ViewportParams defaultWindowParams;
 PerspCameraParams cameraParams;
 Camera camera;
 
-void onWindowResize(GLFWwindow* pWin, int width, int height /*, CurrentWindowParams* pParams, Camera* pCamera*/)
+void onWindowResize(GLFWwindow* pWin, int width, int height)
 {
 	if (height == 0)
 	{
@@ -283,7 +269,6 @@ int runWindow()
 		setCustomUniformF(terrainShaderUniforms.timeLoc, totalTime);
 
 		terrainCubeModel.draw();
-
 
 		glUseProgram(defaultShaderProgram);
 		setTransformUniforms(defaultShaderUniforms, camera, terrainTransform);
