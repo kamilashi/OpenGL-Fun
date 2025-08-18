@@ -7,4 +7,4 @@ Currently the jet model is animated flying over a simple scrolling terrain. The 
 ![render image](root/assets/images/cover.png "Raw patron count")
 
 
-*note: to run the solution, please download the assimp library and put it into root/code/external so that the top CMakeLists.txt is in root/code/external/assimp.*
+*note: to run the solution, please download the [assimp library](https://github.com/assimp/assimp/blob/master/Build.md) and put it into the root/code/external folder so that the path to the assimp's top CMakeLists.txt looks like root/code/external/assimp/CMakeLists.txt*
