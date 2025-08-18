@@ -2,18 +2,29 @@
 #version 330 core
 #include noises.glsl
 
-vec3 normalFromHeightNoise(vec2 uv, float step, float heightScale, float sampleScale, float hc) 
+float fbmHeight(vec2 sampleCoords, vec3 intensity, float baseScale)
 {
-    float hx  = GradientNoise01(uv + vec2(step, 0), sampleScale) * heightScale;
-    float hz  = GradientNoise01(uv + vec2(0, step), sampleScale) * heightScale;
+    float heightOffset = GradientNoise01(sampleCoords, baseScale) * intensity.x;
+    
+    heightOffset += GradientNoise01(sampleCoords, baseScale * 2) * intensity.y;
 
-    float dhdx_tex = (hx - hc) / step;
-    float dhdz_tex = (hz - hc) / step;
+    heightOffset += GradientNoise01(sampleCoords, baseScale * 4) * intensity.z;
 
-    float worldScaleX = 1.0; 
-    float worldScaleZ = 1.0; 
-    float dhdx = dhdx_tex / (1.0 / worldScaleX); 
-    float dhdz = dhdz_tex / (1.0 / worldScaleZ); 
+    return heightOffset;
+}
+
+vec3 normalFromHeightNoise(vec2 uv, float step, vec3 intensity, float baseScale, float hc) 
+{
+    float hx  = fbmHeight(uv + vec2(step, 0), intensity, baseScale);
+    float hz  = fbmHeight(uv + vec2(0, step), intensity, baseScale);
+
+    float grad_x = (hx - hc) / step;
+    float grad_z = (hz - hc) / step;
+
+    float worldScaleX = 2.0; 
+    float worldScaleZ = 2.0; 
+    float dhdx = grad_x / worldScaleX; 
+    float dhdz = grad_z / worldScaleZ; 
 
     vec3 n = vec3(-dhdx, 1.0, -dhdz);
     return normalize(n);
@@ -44,15 +55,10 @@ void main()
 
     vec3 intensity = vec3(0.7, 1.5, 1.3);
     float sampleScale = 3.0;
-    float heightMaxAmplitude = intensity.x + intensity.y + intensity.z;
-    float heightOffset = GradientNoise01(sampleCoords, sampleScale) * intensity.x;
-    
-    heightOffset += GradientNoise01(sampleCoords, sampleScale * 2) * intensity.y;
-
-    heightOffset += GradientNoise01(sampleCoords, sampleScale * 4) * intensity.z;
+    float heightOffset = fbmHeight(sampleCoords, intensity, sampleScale);
 
     vec3 localPos = aPos;
-    localPos.y += heightOffset - heightMaxAmplitude/2;
+    localPos.y += heightOffset - 2.0f;
 
     if(localPos.y < -1)
     {
@@ -63,7 +69,7 @@ void main()
 
     if(dot(aNormal, vec3(0.0, 1.0, 0.0)) > 0)
     {
-        Normal = -normalFromHeightNoise(sampleCoords, 0.1, heightMaxAmplitude, sampleScale * 2, heightOffset);
+        Normal = normalFromHeightNoise(sampleCoords, 0.1, intensity, sampleScale, heightOffset);
     }
     else
     {
