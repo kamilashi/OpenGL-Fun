@@ -73,12 +73,10 @@ out vec2 TexCoord;
 out vec3 Normal;
 out vec3 WorldPos; 
 out vec3 FragPos;
-out vec4 FragPosLightSpace;
 
 uniform mat4 uTransform;
 uniform mat4 uView;
 uniform mat4 uProjection;
-uniform mat4 uLightSpaceMatrix;
 uniform float uTime;
 
 void main() 
@@ -116,37 +114,21 @@ void main()
         localPos.y = aPos.y;
     }
 
-    FragPos = vec3(uTransform * vec4(localPos, 1.0));
-    FragPosLightSpace = uLightSpaceMatrix * vec4(FragPos, 1.0);
-    gl_Position = uProjection * uView * vec4(FragPos, 1.0);
+    gl_Position = uProjection * uView * uTransform * vec4(localPos, 1.0);
 }
 
 #shader fragment
 #version 330 core
-#include helpers.glsl
-#include noises.glsl
 
 in vec2 TexCoord;
 in vec3 Normal; 
 in vec3 WorldPos; 
-in vec3 FragPos;
-in vec4 FragPosLightSpace;
 
 out vec4 FragColor;
 
-uniform vec3 uMainColor;
-uniform vec3 uMainLightColor;
-uniform vec3 uMainLightDirection;
-
-uniform sampler2D shadowMap;
-
 void main() 
 {
-    vec3 norm = Normal;
+    gl_FragDepth = gl_FragCoord.z;
 
-    #include dither.glsl
-    
-    float shadow = getShadow(FragPosLightSpace, shadowMap); 
-
-    FragColor = FragColor * shadow;
+    FragColor = vec4(gl_FragDepth, gl_FragDepth, gl_FragDepth, 1.0f);
 }

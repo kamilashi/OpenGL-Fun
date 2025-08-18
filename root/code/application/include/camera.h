@@ -24,7 +24,7 @@ public:
 		projMatrix = glm::perspective(glm::radians(camParams.fov), (float)winWidth / (float)winHeight, camParams.nearPlane, camParams.farPlane);
 	}
 
-	void createOrthogonalProjection(float left, float right, float top, float bottom, float nearPlane, float farPlane, glm::vec3 viewVector)
+	void createOrthogonalProjection(float left, float right, float top, float bottom, float nearPlane, float farPlane)
 	{
 		projMatrix = glm::ortho(left, right, top, bottom, nearPlane, farPlane);
 	}

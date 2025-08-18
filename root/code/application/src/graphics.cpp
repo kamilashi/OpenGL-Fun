@@ -1,10 +1,11 @@
 
 #include <glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <stdexcept> 
+#include <iostream>
 
 #include "graphics.h"
+#include "assetloader.h"
+#include "camera.h"
 
 namespace Graphics
 {
@@ -59,4 +60,74 @@ namespace Graphics
 			mesh.draw();
 		}
 	}
+
+
+	static uint compileStage(GLenum type, const std::string& src, const char* label) {
+		uint id = glCreateShader(type);
+		const char* csrc = src.c_str();
+		glShaderSource(id, 1, &csrc, nullptr);
+		glCompileShader(id);
+
+		int ok = 0;
+		glGetShaderiv(id, GL_COMPILE_STATUS, &ok);
+		if (!ok)
+		{
+			int len = 0; glGetShaderiv(id, GL_INFO_LOG_LENGTH, &len);
+			std::string log(len, '\0');
+			glGetShaderInfoLog(id, len, &len, log.data());
+			std::cerr << "[Shader compile error] " << label << ":\n" << log << "\n";
+			glDeleteShader(id);
+			throw std::runtime_error("Shader compilation failed");
+		}
+		return id;
+	}
+
+	static uint linkProgram(uint vs, uint fs)
+	{
+		uint prog = glCreateProgram();
+		glAttachShader(prog, vs);
+		glAttachShader(prog, fs);
+		glLinkProgram(prog);
+
+		int ok = 0;
+		glGetProgramiv(prog, GL_LINK_STATUS, &ok);
+		if (!ok)
+		{
+			int len = 0; glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
+			std::string log(len, '\0');
+			glGetProgramInfoLog(prog, len, &len, log.data());
+
+			printf("Program link error \n %s\n", log.c_str());
+
+			glDeleteProgram(prog);
+			throw std::runtime_error("Program link failed");
+		}
+		glDetachShader(prog, vs);
+		glDetachShader(prog, fs);
+		glDeleteShader(vs);
+		glDeleteShader(fs);
+
+		return prog;
+	}
+
+	Shader::Shader(const char* name)
+	{
+		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(name);
+		uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
+		uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
+		id = linkProgram(vs, fs);
+
+		uniforms = ShaderUniforms(id);
+	}
+
+	Shader::Shader(const char* nameV, const char* nameF)
+	{
+		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(nameV, nameF);
+		uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
+		uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
+		id = linkProgram(vs, fs);
+
+		uniforms = ShaderUniforms(id);
+	}
+
 }

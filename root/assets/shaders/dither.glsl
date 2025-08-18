@@ -18,7 +18,7 @@
     vec3 color = uMainLightColor;
     if(dotPr > 0)
     {
-        vec3 ambientColor = mix(vec3(0.17, 0.1, 0.7), vec3(0.2, 0.4, 1.0), (max(dotPr, 0.0)));
+        vec3 ambientColor = mix(vec3(0.27, 0.3, 0.8), vec3(0.3, 0.5, 1.0), (max(dotPr, 0.0)));
         color = ambientColor;
     }
     
