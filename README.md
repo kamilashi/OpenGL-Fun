@@ -2,7 +2,7 @@
 
 This is a WIP project aimed at familiarizing myself with OpenGL and graphics APIs in general.
 
-Currently this is just a simple scrolling terrain. 
+Currently the jet model is animated flying over a simple scrolling terrain. The terrain is generated via the Fractal Brownian Motion and eroded based on the height gradients. 
 
 ![render image](root/assets/images/cover.png "Raw patron count")
 
