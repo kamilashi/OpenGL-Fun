@@ -104,13 +104,13 @@ int runWindow()
 	glm::mat4 terrainTransform = glm::mat4(1.0f);
 	glm::vec3 terrainColor = glm::vec3(0.7f, 0.1f, 0.3f);
 
-	glm::vec3 lightPosition = glm::vec3(2.0f, 2.0f, -1.0f);
+	glm::vec3 lightPosition = glm::vec3(2.0f, 2.0f, -1.5f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 lightDirection = glm::normalize(glm::vec3(glm::vec3(terrainTransform[3]) - lightPosition));
 	glm::normalize(lightDirection);
 
 	glm::mat4 jetStartTransform = glm::mat4(1.0f);
-	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.2f, 0.7f, -0.5f));
+	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.7f, -0.0f));
 	jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	jetStartTransform = glm::scale(jetStartTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	glm::mat4 jetTransform = glm::mat4(1.0f);
