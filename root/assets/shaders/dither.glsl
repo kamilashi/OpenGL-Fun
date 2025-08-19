@@ -23,5 +23,7 @@
     }
     
     vec3 diffuse = multiplier * color;
+    float bias = max(0.05 * (1.0 - dotPr), 0.005);
+    float shadow = getShadow(FragPosLightSpace, shadowMap, bias); 
 
-    FragColor = vec4( diffuse * uMainColor, 1.0);
+    FragColor = vec4( (1-shadow) * diffuse * uMainColor, 1.0);

@@ -104,25 +104,27 @@ int runWindow()
 	glm::mat4 terrainTransform = glm::mat4(1.0f);
 	glm::vec3 terrainColor = glm::vec3(0.7f, 0.1f, 0.3f);
 
-	glm::mat4 debugQuadTransform = glm::mat4(1.0f);
-	//debugQuadTransform = glm::translate(lightTransform, glm::vec3(2.0f, 2.0f, -2.0f));
-	debugQuadTransform = glm::scale(debugQuadTransform, glm::vec3(10.1f, 10.1f, 10.1f));
-
-	glm::vec3 lightPosition = glm::vec3(2.0f, 2.0f, -2.0f);
+	glm::vec3 lightPosition = glm::vec3(2.0f, 4.0f, -2.0f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 lightDirection = glm::vec3(glm::vec3(terrainTransform[3]) - lightPosition);
 	glm::normalize(lightDirection);
 
 	glm::mat4 jetStartTransform = glm::mat4(1.0f);
-	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.7f, 0.0f));
+	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.5f, 0.0f));
 	jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 jetTransform = glm::mat4(1.0f);
 	glm::vec3 jetColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
+
+	glm::mat4 debugQuadTransform = glm::mat4(1.0f);
+	debugQuadTransform = glm::translate(debugQuadTransform, lightPosition);
+	//debugQuadTransform = glm::scale(debugQuadTransform, glm::vec3(10.1f, 10.1f, 10.1f));
+	debugQuadTransform = glm::scale(debugQuadTransform, glm::vec3(0.1f, 0.1f, 0.1f));
+
 	// cameras
 	camera = Camera();
 	camera.createPerspectiveProjection(cameraParams, viewportParams.width, viewportParams.height);
-	camera.createView(glm::vec3(5.0f, 9.0f, 5.0f));
+	camera.createView(glm::vec3(4.0f, 9.0f, 4.0f));
 	glm::vec3 lookAtTarget = glm::vec3(terrainTransform[3]);
 	lookAtTarget.y += 0.5;
 	camera.lookAt(lookAtTarget);
@@ -132,7 +134,7 @@ int runWindow()
 	Camera mainLightCamera = Camera();
 	float sceneBoxRadius = 5.0f;
 	mainLightCamera.createOrthogonalProjection(-sceneBoxRadius, sceneBoxRadius, -sceneBoxRadius, sceneBoxRadius, 1.0f, 7.5f);
-	mainLightCamera.createView(glm::vec3(-lightDirection));
+	mainLightCamera.createView(lightPosition);
 	mainLightCamera.lookAt(glm::vec3(mainLightCamera.position + lightDirection));
 
 	glm::mat4 lightSpaceMatrix;
@@ -149,8 +151,8 @@ int runWindow()
 	Shader defaultShader = Shader("default");
 	Shader terrainShader = Shader("terrain");
 	Shader unlitShader = Shader("unlit");
-	Shader defaultDepthShader = Shader("default", "default_depth");
-	Shader terrainDepthShader = Shader("terrain_depth");
+	Shader defaultDepthShader = Shader("default_depth");
+	Shader terrainDepthShader = Shader("terrain_depth", "default_depth");
 
 
 	glUseProgram(debugShader.id);
@@ -166,10 +168,10 @@ int runWindow()
 	glUseProgram(terrainShader.id);
 	terrainShader.setMainLightUniforms(lightColor, lightDirection);
 	terrainShader.setMainColorUniform(terrainColor);
+	terrainShader.setCustomUniformM4(terrainShader.getLoc("uLightSpaceMatrix"), lightSpaceMatrix);
 
 	glUseProgram(terrainDepthShader.id);
 	terrainDepthShader.setMainLightUniforms(lightColor, lightDirection);
-	terrainDepthShader.setCustomUniformM4(terrainDepthShader.getLoc("uLightSpaceMatrix"), lightSpaceMatrix);
 
 	glUseProgram(unlitShader.id);
 	unlitShader.setMainColorUniform(lightColor);
@@ -177,13 +179,11 @@ int runWindow()
 	uint depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
 
-	Texture depthTexture = Texture(1024, 1024, GL_DEPTH_COMPONENT, GL_FLOAT);
+	Texture depthTexture = Texture(2048, 2048, GL_DEPTH_COMPONENT, GL_FLOAT);
 	Graphics::bindDepthTexture(depthTexture.id, depthMapFBO);
 
-	auto renderScene = [&](Camera activeCam, Shader terrainShaderVar, Shader defaultShaderVar, float time, uint depthtextureId = ~0x0)
+	auto renderScene = [&](const Camera& activeCam, Shader terrainShaderVar, Shader defaultShaderVar, float time, uint depthtextureId = ~0x0)
 		{
-			//rotateCamera(&camera, totalTime, 10, lookAtTarget);
-
 			glUseProgram(terrainShaderVar.id);
 
 			if (depthtextureId != ~0x0)
@@ -198,6 +198,13 @@ int runWindow()
 			terrainCubeModel.draw();
 
 			glUseProgram(defaultShaderVar.id);
+
+			if (depthtextureId != ~0x0)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, depthTexture.id);
+			}
+
 			defaultShaderVar.setTransformUniforms(activeCam, terrainTransform);
 			defaultShaderVar.setMainColorUniform(terrainColor);
 			terrainCubeSidesModel.draw();
@@ -217,6 +224,9 @@ int runWindow()
 	{
 		float totalTime = static_cast<float>(glfwGetTime());
 
+		//rotateCamera(&camera, totalTime, 10, lookAtTarget);
+
+
 		Graphics::blitToTexture(depthTexture, depthMapFBO);
 		glClear( GL_DEPTH_BUFFER_BIT);
 		renderScene(mainLightCamera, terrainDepthShader, defaultDepthShader, totalTime);
@@ -225,15 +235,13 @@ int runWindow()
 		glViewport(0, 0, viewportParams.width, viewportParams.height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glBindTexture(GL_TEXTURE_2D, depthTexture.id);
-		renderScene(camera, terrainShader, defaultShader, totalTime);
-
-		glUseProgram(debugShader.id);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthTexture.id);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);   // <- important
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		renderScene(camera, terrainShader, defaultShader, totalTime, depthTexture.id);
+
+
+		glUseProgram(unlitShader.id);
+		unlitShader.setTransformUniforms(camera, debugQuadTransform);
 		debugQuad.draw();
 
 		glfwSwapBuffers(window);
