@@ -98,15 +98,15 @@ int runWindow()
 
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	// transforms and colors
 	glm::mat4 terrainTransform = glm::mat4(1.0f);
 	glm::vec3 terrainColor = glm::vec3(0.7f, 0.1f, 0.3f);
 
-	glm::vec3 lightPosition = glm::vec3(2.0f, 4.0f, -2.0f);
+	glm::vec3 lightPosition = glm::vec3(2.0f, 3.0f, -2.0f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 lightDirection = glm::vec3(glm::vec3(terrainTransform[3]) - lightPosition);
+	glm::vec3 lightDirection = glm::normalize(glm::vec3(glm::vec3(terrainTransform[3]) - lightPosition));
 	glm::normalize(lightDirection);
 
 	glm::mat4 jetStartTransform = glm::mat4(1.0f);
@@ -184,14 +184,14 @@ int runWindow()
 	Texture depthTexture = Texture(2048, 2048, GL_DEPTH_COMPONENT, GL_FLOAT);
 	Graphics::bindDepthTexture(depthTexture.id, depthMapFBO);
 
-	auto renderScene = [&](Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, uint depthtextureId = ~0x0)
+	auto renderScene = [&](Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, bool shadowCasterPass = false)
 		{
 			Shader& terrainShaderVar = *pTerrainShaderVar;
 			Shader& defaultShaderVar = *pDefaultShaderVar;
 
 			glUseProgram(terrainShaderVar.id);
 
-			if (depthtextureId != ~0x0)
+			if (!shadowCasterPass)
 			{
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, depthTexture.id);
@@ -204,7 +204,7 @@ int runWindow()
 
 			glUseProgram(defaultShaderVar.id);
 
-			if (depthtextureId != ~0x0)
+			if (!shadowCasterPass)
 			{
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, depthTexture.id);
@@ -233,8 +233,10 @@ int runWindow()
 
 
 		Graphics::blitToTexture(depthTexture, depthMapFBO);
-		glClear( GL_DEPTH_BUFFER_BIT);
-		renderScene(&terrainDepthShader, &defaultDepthShader, mainLightCamera, totalTime);
+		glClear( GL_DEPTH_BUFFER_BIT); 
+
+		glCullFace(GL_FRONT);
+		renderScene(&terrainDepthShader, &defaultDepthShader, mainLightCamera, totalTime, true);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glViewport(0, 0, viewportParams.width, viewportParams.height);
@@ -242,7 +244,9 @@ int runWindow()
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthTexture.id);
-		renderScene(&terrainShader, &defaultShader, camera, totalTime, depthTexture.id);
+
+		glCullFace(GL_BACK);
+		renderScene(&terrainShader, &defaultShader, camera, totalTime, false);
 
 
 /*

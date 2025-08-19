@@ -14,26 +14,34 @@
     {
         multiplier = 1.0;
     }
+    
+    float castShadow = 0.0;
+    float depth = 0.0;
+
+#ifndef SHADOW_DEPTH_PASS
+    float maxBias  = 0.0005;   
+    float slopeScale = 0.01;    
+
+    float bias = max(slopeScale * (1.0 - max(-dotPr, 0)), maxBias);
+    vec2 castShadowAndDepth = getShadow(FragPosLightSpace, shadowMap, bias); 
+    
+    castShadow = castShadowAndDepth.x;
+    //depth = castShadowAndDepth.y;
+#endif
+
 
     vec3 color = uMainLightColor;
-    if(dotPr > 0)
+    if(dotPr > 0 || castShadow > 0)
     {
         vec3 ambientColor = mix(vec3(0.27, 0.3, 0.8), vec3(0.3, 0.5, 1.0), (max(dotPr, 0.0)));
         color = ambientColor;
     }
+    else
+    {
+        vec3 colorBlend = mix(uMainLightColor, uMainLightColor + vec3(0.1, 0.1, 0.1), (max(-dotPr, 0.0)));
+        color = colorBlend;
+    }
     
     vec3 diffuse = multiplier * color;
 
-    
-    float shadow = 0.0;
-    float depth = 0.0;
-
-#ifndef SHADOW_DEPTH_PASS
-    float bias = max(0.05 * (1.0 - dotPr), 0.005);
-    vec2 shadowAndDepth = getShadow(FragPosLightSpace, shadowMap, bias); 
-    
-    shadow = shadowAndDepth.x;
-    depth = shadowAndDepth.y;
-#endif
-
-    FragColor = vec4( (1 - shadow) * (diffuse * (1 - depth)) * uMainColor, 1.0);
+    FragColor = vec4( (diffuse * (1 - depth)) * uMainColor, 1.0);
