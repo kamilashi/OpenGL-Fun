@@ -19,7 +19,7 @@ public:
 	glm::vec3 position;
 
 
-	void createPerspectiveProjection(PerspCameraParams camParams, int winWidth, int winHeight)
+	void createPerspectiveProjection(const PerspCameraParams& camParams, int winWidth, int winHeight)
 	{
 		projMatrix = glm::perspective(glm::radians(camParams.fov), (float)winWidth / (float)winHeight, camParams.nearPlane, camParams.farPlane);
 	}
@@ -29,19 +29,18 @@ public:
 		projMatrix = glm::ortho(left, right, top, bottom, nearPlane, farPlane);
 	}
 
-	void createView(glm::vec3 position)
+	void createView(const glm::vec3& position)
 	{
 		this->position = position;
 		viewMatrix = glm::translate(glm::mat4(1.0f), -position);
 	}
 
-	void lookAt(glm::vec3 target)
+	void lookAt(const glm::vec3& target)
 	{
 		glm::vec3 worldUp = { 0.f, 1.f, 0.f };
 
 		viewMatrix = glm::lookAt(position, target, worldUp);
 	}
-
 };
 
 

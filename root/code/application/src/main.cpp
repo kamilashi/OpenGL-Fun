@@ -182,8 +182,11 @@ int runWindow()
 	Texture depthTexture = Texture(2048, 2048, GL_DEPTH_COMPONENT, GL_FLOAT);
 	Graphics::bindDepthTexture(depthTexture.id, depthMapFBO);
 
-	auto renderScene = [&](const Camera& activeCam, Shader terrainShaderVar, Shader defaultShaderVar, float time, uint depthtextureId = ~0x0)
+	auto renderScene = [&](Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, uint depthtextureId = ~0x0)
 		{
+			Shader& terrainShaderVar = *pTerrainShaderVar;
+			Shader& defaultShaderVar = *pDefaultShaderVar;
+
 			glUseProgram(terrainShaderVar.id);
 
 			if (depthtextureId != ~0x0)
@@ -229,7 +232,7 @@ int runWindow()
 
 		Graphics::blitToTexture(depthTexture, depthMapFBO);
 		glClear( GL_DEPTH_BUFFER_BIT);
-		renderScene(mainLightCamera, terrainDepthShader, defaultDepthShader, totalTime);
+		renderScene(&terrainDepthShader, &defaultDepthShader, mainLightCamera, totalTime);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glViewport(0, 0, viewportParams.width, viewportParams.height);
@@ -237,7 +240,7 @@ int runWindow()
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthTexture.id);
-		renderScene(camera, terrainShader, defaultShader, totalTime, depthTexture.id);
+		renderScene(&terrainShader, &defaultShader, camera, totalTime, depthTexture.id);
 
 
 		glUseProgram(unlitShader.id);

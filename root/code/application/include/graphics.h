@@ -78,7 +78,7 @@ namespace Graphics
 			return glGetUniformLocation(id, uName);
 		}
 
-		void setTransformUniforms(Camera camera, const glm::mat4& transform)
+		void setTransformUniforms(const Camera& camera, const glm::mat4& transform)
 		{
 			glUniformMatrix4fv(uniforms.transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 			glUniformMatrix4fv(uniforms.viewLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
