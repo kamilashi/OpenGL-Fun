@@ -182,7 +182,7 @@ int runWindow()
 	uint depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
 
-	Texture depthTexture = Texture(2048, 2048, GL_DEPTH_COMPONENT, GL_FLOAT);
+	Texture depthTexture = Texture(4096, 4096, GL_DEPTH_COMPONENT, GL_FLOAT);
 	Graphics::bindDepthTexture(depthTexture.id, depthMapFBO);
 
 	auto renderScene = [&](Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, bool shadowCasterPass = false)
