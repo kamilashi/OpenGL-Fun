@@ -104,14 +104,15 @@ int runWindow()
 	glm::mat4 terrainTransform = glm::mat4(1.0f);
 	glm::vec3 terrainColor = glm::vec3(0.7f, 0.1f, 0.3f);
 
-	glm::vec3 lightPosition = glm::vec3(2.0f, 3.0f, -2.0f);
+	glm::vec3 lightPosition = glm::vec3(2.0f, 2.0f, -1.0f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 lightDirection = glm::normalize(glm::vec3(glm::vec3(terrainTransform[3]) - lightPosition));
 	glm::normalize(lightDirection);
 
 	glm::mat4 jetStartTransform = glm::mat4(1.0f);
-	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.5f, 0.0f));
+	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.2f, 0.7f, -0.5f));
 	jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	jetStartTransform = glm::scale(jetStartTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	glm::mat4 jetTransform = glm::mat4(1.0f);
 	glm::vec3 jetColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
@@ -125,7 +126,7 @@ int runWindow()
 	// cameras
 	camera = Camera();
 	camera.createPerspectiveProjection(cameraParams, viewportParams.width, viewportParams.height);
-	camera.createView(glm::vec3(4.0f, 9.0f, 4.0f));
+	camera.createView(glm::vec3(3.2f, 8.0f, 3.2f));
 	glm::vec3 lookAtTarget = glm::vec3(terrainTransform[3]);
 	lookAtTarget.y += 0.5;
 	camera.lookAt(lookAtTarget);
@@ -212,6 +213,8 @@ int runWindow()
 
 			defaultShaderVar.setTransformUniforms(activeCam, terrainTransform);
 			defaultShaderVar.setMainColorUniform(terrainColor);
+			Shader::setCustomUniformF(defaultShaderVar.uniforms.timeLoc, time);
+
 			terrainCubeSidesModel.draw();
 
 			float speed = 1.0f;
@@ -235,7 +238,8 @@ int runWindow()
 		Graphics::blitToTexture(depthTexture, depthMapFBO);
 		glClear( GL_DEPTH_BUFFER_BIT); 
 
-		glCullFace(GL_FRONT);
+		glDisable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
 		renderScene(&terrainDepthShader, &defaultDepthShader, mainLightCamera, totalTime, true);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -245,6 +249,7 @@ int runWindow()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthTexture.id);
 
+		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		renderScene(&terrainShader, &defaultShader, camera, totalTime, false);
 

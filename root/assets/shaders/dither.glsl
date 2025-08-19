@@ -3,45 +3,45 @@
 
     float dotPr = dot(norm, uMainLightDirection);
 
-    vec2 seed = genSeed(WorldPos, TexCoord);
+   // float random = GradientNoise01(genSeed(WorldPos), 1000.0); 
+    float random = GradientNoise01(gl_FragCoord.xy / vec2(10000, 10000), 5000.0); 
     
-    float random = GradientNoise01(seed, 10.0); 
 
-    float multiplier = 0.0;
+    float ditherFactor = 0.0;
     
+    float dotScaled = dotPr * 2;
+
     // total light             // total shade
-    if(random > (1.0 + dotPr)  ||  random > (1.0 - dotPr))
+    if(random > (1.0 + dotScaled)  ||  random > (1.0 - dotScaled))
     {
-        multiplier = 1.0;
+        ditherFactor = 1.0;
     }
     
-    float castShadow = 0.0;
-    float depth = 0.0;
 
-#ifndef SHADOW_DEPTH_PASS
-    float maxBias  = 0.0005;   
+    float maxBias  = 0.01;   
     float slopeScale = 0.01;    
 
     float bias = max(slopeScale * (1.0 - max(-dotPr, 0)), maxBias);
     vec2 castShadowAndDepth = getShadow(FragPosLightSpace, shadowMap, bias); 
     
-    castShadow = castShadowAndDepth.x;
-    //depth = castShadowAndDepth.y;
-#endif
+    float castShadow = castShadowAndDepth.x;
+    float depth = 0.0; // castShadowAndDepth.y;
 
-
+    vec3 ditherColor = vec3(0.3, 0.05, 0.1); // vec3(0.2, 0.01, 0.05);//
     vec3 color = uMainLightColor;
-    if(dotPr > 0 || castShadow > 0)
+
+
+    if(dotScaled > 0.0 || castShadow > 0) // shaded areas
     {
-        vec3 ambientColor = mix(vec3(0.27, 0.3, 0.8), vec3(0.3, 0.5, 1.0), (max(dotPr, 0.0)));
+        vec3 ambientColor = mix(vec3(0.27, 0.3, 0.8), vec3(0.3, 0.5, 1.0), (max(dotScaled, 0.0)));
         color = ambientColor;
     }
-    else
+    else  // lit areas
     {
-        vec3 colorBlend = mix(uMainLightColor, uMainLightColor + vec3(0.1, 0.1, 0.1), (max(-dotPr, 0.0)));
+        vec3 colorBlend = mix(uMainLightColor, uMainLightColor + vec3(0.1, 0.1, 0.1), (max(-dotScaled, 0.0)));
         color = colorBlend;
     }
     
-    vec3 diffuse = multiplier * color;
+    vec3 diffuse = mix(ditherColor, color, ditherFactor);
 
     FragColor = vec4( (diffuse * (1 - depth)) * uMainColor, 1.0);

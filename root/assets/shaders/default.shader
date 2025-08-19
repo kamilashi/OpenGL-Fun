@@ -1,6 +1,7 @@
 #shader vertex
 #version 330 core
 #include noises.glsl
+#include helpers.glsl
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
@@ -14,13 +15,13 @@ out vec3 WorldPos;
 
 #ifndef SHADOW_DEPTH_PASS
     out vec4 FragPosLightSpace;
+    out float DitherUVSample;
     uniform mat4 uLightSpaceMatrix;
 #endif
 
 uniform mat4 uTransform;
 uniform mat4 uView;
 uniform mat4 uProjection;
-uniform float uTime;
 
 void main() 
 {
@@ -45,19 +46,22 @@ in vec3 WorldPos;
 
 #ifndef SHADOW_DEPTH_PASS
     in vec4 FragPosLightSpace;
+    in float DitherUVSample;
     uniform sampler2D shadowMap;
+
+    uniform vec3 uMainColor;
+    uniform vec3 uMainLightColor;
+    uniform vec3 uMainLightDirection;
+    uniform float uTime;
 #endif
 
 out vec4 FragColor;
 
-uniform vec3 uMainColor;
-uniform vec3 uMainLightColor;
-uniform vec3 uMainLightDirection;
-
-
 void main() 
 {
+#ifndef SHADOW_DEPTH_PASS
     vec3 norm = normalize(Normal);
 
     #include dither.glsl
+#endif
 }

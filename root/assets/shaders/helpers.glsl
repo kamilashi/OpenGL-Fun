@@ -21,7 +21,21 @@ float rand01(uvec2 seed)
 
 vec2 genSeed(vec3 vertexPos, vec2 fraqUV)
 {
-    vec2 seed = vec2((vertexPos.x * vertexPos.y / fraqUV.x * 50.0 + vertexPos.z), (vertexPos.z * vertexPos.y / fraqUV.y * 50.0 + vertexPos.x));
+    vec2 seed = vec2((vertexPos.x * vertexPos.y / (fraqUV.x) * 50.0 + vertexPos.z), (vertexPos.z * vertexPos.y / (fraqUV.y) * 50.0 + vertexPos.x));
+
+    return seed;
+}
+
+vec2 genSeed(vec3 vertexPos)
+{
+    vec2 seed = vec2((vertexPos.x * vertexPos.y + vertexPos.z), (vertexPos.z * vertexPos.y + vertexPos.x));
+
+    return seed;
+}
+
+vec2 genSeed(vec2 vertexPos, vec2 fraqUV)
+{
+    vec2 seed = vec2((vertexPos.x / (fraqUV.x) * 50.0), (vertexPos.y / (fraqUV.y) * 50.0));
 
     return seed;
 }
