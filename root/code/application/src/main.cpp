@@ -152,8 +152,9 @@ int runWindow()
 	Shader defaultShader = Shader("default");
 	Shader terrainShader = Shader("terrain");
 	Shader unlitShader = Shader("unlit");
-	Shader defaultDepthShader = Shader("default_depth");
-	Shader terrainDepthShader = Shader("terrain_depth", "default_depth");
+
+	Shader defaultDepthShader = Shader("default", true, { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
+	Shader terrainDepthShader = Shader("terrain", "default", { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
 
 
 	glUseProgram(debugShader.id);
@@ -244,13 +245,14 @@ int runWindow()
 		renderScene(&terrainShader, &defaultShader, camera, totalTime, depthTexture.id);
 
 
+/*
 		glUseProgram(debugShader.id);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthTexture.id);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		debugQuad.draw();
+		debugQuad.draw();*/
 
 		glfwSwapBuffers(window);
 
