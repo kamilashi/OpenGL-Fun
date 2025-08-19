@@ -28,8 +28,9 @@ for %%F in ("%SRC_DIR%\*.shader") do (
     "    } else { $f += $line + [Environment]::NewLine }" ^
     "  }" ^
     "}" ^
-    "Set-Content -NoNewline -Encoding UTF8 (Join-Path $outDir ($name+'V.shader')) $v;" ^
-    "Set-Content -NoNewline -Encoding UTF8 (Join-Path $outDir ($name+'F.shader')) $f;"
+    "$utf8NoBom = New-Object System.Text.UTF8Encoding($false);" ^
+    "[IO.File]::WriteAllText( (Join-Path $outDir ($name+'V.shader')), $v, $utf8NoBom );" ^
+    "[IO.File]::WriteAllText( (Join-Path $outDir ($name+'F.shader')), $f, $utf8NoBom );"
 )
 
 echo Done. Output: %OUT_DIR%

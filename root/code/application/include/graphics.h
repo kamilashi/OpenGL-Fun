@@ -68,9 +68,13 @@ namespace Graphics
 		uint id;
 		ShaderUniforms uniforms;
 
-		Shader(const char* name);
+		Shader(const char* name, bool combine = true,
+			const std::vector<std::string>& definesV = {},
+			const std::vector<std::string>& definesF = {});
 
-		Shader(const char* nameV, const char* nameF);
+		Shader(const char* nameV, const char* nameF,
+			const std::vector<std::string>& definesV = {},
+			const std::vector<std::string>& definesF = {});
 
 
 		uint getLoc(const GLchar* uName)

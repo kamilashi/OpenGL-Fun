@@ -37,7 +37,38 @@ std::string readFile(const std::string& path)
 	return s.str();
 }
 
-extern Graphics::ShaderSources AssetLoader::loadShaderFiles(const std::string& baseName)
+std::string addDefines(const std::string& src, const std::vector<std::string>& defines)
+{
+	if (defines.empty())
+	{
+		return src;
+	}
+
+	// Extract the #version line
+	std::string header;
+	std::string rest;
+	size_t nl = src.find('\n');
+	if (src.rfind("#version", 0) == 0 && nl != std::string::npos) {
+		header = src.substr(0, nl + 1);
+		rest = src.substr(nl + 1);
+	}
+	else {
+		rest = src;
+	}
+
+	// Build define block
+	std::string defs;
+	for (auto& d : defines)
+		defs += "#define " + d + "\n";
+
+	// Return with #line reset
+	return header + defs + "#line 1\n" + rest;
+}
+
+extern Graphics::ShaderSources AssetLoader::loadShaderFiles(
+	const std::string& baseName, 
+	const std::vector<std::string>& definesV, 
+	const std::vector<std::string>& definesF)
 {
 	//#TODO: change this to relative path or embed shaders into the exe
 	std::string dir = std::string(DEFAULT_ASSET_DIR) + "/shaders";
@@ -45,19 +76,23 @@ extern Graphics::ShaderSources AssetLoader::loadShaderFiles(const std::string& b
 	std::string vPath = dir + "/" + baseName + "V.shader";
 	std::string fPath = dir + "/" + baseName + "F.shader";
 
-	Graphics::ShaderSources shaderSources(readFile(vPath), readFile(fPath));
+	Graphics::ShaderSources shaderSources(addDefines(readFile(vPath), definesV), addDefines(readFile(fPath), definesF));
 
 	return shaderSources;
 }
 
-extern Graphics::ShaderSources AssetLoader::loadShaderFiles(const std::string& baseNameVert, const std::string& baseNameFrag)
+extern Graphics::ShaderSources AssetLoader::loadShaderFiles(
+	const std::string& baseNameVert, 
+	const std::string& baseNameFrag, 
+	const std::vector<std::string>& definesV, 
+	const std::vector<std::string>& definesF)
 {
 	std::string dir = std::string(DEFAULT_ASSET_DIR) + "/shaders";
 
 	std::string vPath = dir + "/" + baseNameVert + "V.shader";
 	std::string fPath = dir + "/" + baseNameFrag + "F.shader";
 
-	Graphics::ShaderSources shaderSources(readFile(vPath), readFile(fPath));
+	Graphics::ShaderSources shaderSources(addDefines(readFile(vPath), definesV), addDefines(readFile(fPath), definesF));
 
 	return shaderSources;
 }

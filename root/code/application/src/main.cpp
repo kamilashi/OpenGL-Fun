@@ -117,9 +117,10 @@ int runWindow()
 
 
 	glm::mat4 debugQuadTransform = glm::mat4(1.0f);
-	debugQuadTransform = glm::translate(debugQuadTransform, lightPosition);
-	//debugQuadTransform = glm::scale(debugQuadTransform, glm::vec3(10.1f, 10.1f, 10.1f));
-	debugQuadTransform = glm::scale(debugQuadTransform, glm::vec3(0.1f, 0.1f, 0.1f));
+	//debugQuadTransform = glm::translate(debugQuadTransform, lightPosition);
+	debugQuadTransform = glm::rotate(debugQuadTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	debugQuadTransform = glm::scale(debugQuadTransform, glm::vec3(10.1f, 10.1f, 10.1f));
+	//debugQuadTransform = glm::scale(debugQuadTransform, glm::vec3(0.1f, 0.1f, 0.1f));
 
 	// cameras
 	camera = Camera();
@@ -147,7 +148,7 @@ int runWindow()
 	Model debugQuad = Model(Mesh::Primitive::Quad);
 
 	// shaders
-	Shader debugShader = Shader("debug");
+	Shader debugShader = Shader("debug", true, {"RENDER_IN_SCREEN_SPACE"});
 	Shader defaultShader = Shader("default");
 	Shader terrainShader = Shader("terrain");
 	Shader unlitShader = Shader("unlit");
@@ -243,8 +244,12 @@ int runWindow()
 		renderScene(&terrainShader, &defaultShader, camera, totalTime, depthTexture.id);
 
 
-		glUseProgram(unlitShader.id);
-		unlitShader.setTransformUniforms(camera, debugQuadTransform);
+		glUseProgram(debugShader.id);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthTexture.id);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		debugQuad.draw();
 
 		glfwSwapBuffers(window);

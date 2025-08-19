@@ -19,9 +19,14 @@ uniform float uTime;
 
 void main() 
 {
-    gl_Position = uProjection * uView * uTransform * vec4(aPos, 1.0);
 
+#ifndef RENDER_IN_SCREEN_SPACE
+    gl_Position = uProjection * uView * uTransform * vec4(aPos, 1.0);
     WorldPos = vec3(uTransform * vec4(aPos, 1.0));
+#else
+    gl_Position = vec4(aPos, 1.0);
+#endif
+
     TexCoord = aTexCoord;
     Normal = aNormal;
 }

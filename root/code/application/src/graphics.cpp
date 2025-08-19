@@ -110,9 +110,11 @@ namespace Graphics
 		return prog;
 	}
 
-	Shader::Shader(const char* name)
+	Shader::Shader(const char* name, bool combine,
+		const std::vector<std::string>& definesV,
+		const std::vector<std::string>& definesF)
 	{
-		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(name);
+		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(name, definesV, definesF);
 		uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
 		uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
 		id = linkProgram(vs, fs);
@@ -120,9 +122,12 @@ namespace Graphics
 		uniforms = ShaderUniforms(id);
 	}
 
-	Shader::Shader(const char* nameV, const char* nameF)
+	Shader::Shader(const char* nameV, 
+		const char* nameF,
+		const std::vector<std::string>& definesV,
+		const std::vector<std::string>& definesF)
 	{
-		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(nameV, nameF);
+		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(nameV, nameF, definesV, definesF);
 		uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
 		uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
 		id = linkProgram(vs, fs);

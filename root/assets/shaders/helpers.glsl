@@ -26,7 +26,7 @@ vec2 genSeed(vec3 vertexPos, vec2 fraqUV)
     return seed;
 }
 
-float getShadow(vec4 fragPosLightSpace, sampler2D shadowMap, float shadowBias)
+vec2 getShadow(vec4 fragPosLightSpace, sampler2D shadowMap, float shadowBias)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
 
@@ -38,5 +38,5 @@ float getShadow(vec4 fragPosLightSpace, sampler2D shadowMap, float shadowBias)
 
     float shadow = currentDepth - shadowBias > closestDepth  ? 1.0 : 0.0;  
 
-    return shadow;
+    return vec2(shadow, currentDepth);
 }  
