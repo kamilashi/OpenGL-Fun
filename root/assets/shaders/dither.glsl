@@ -26,7 +26,7 @@
     float castShadow = castShadowAndDepth.x;
     float depth = 0.0; // castShadowAndDepth.y;
 
-    vec3 ditherColor = vec3(0.3, 0.05, 0.1); // vec3(0.2, 0.01, 0.05);//
+    vec3 ditherColor = vec3(0.0, 0.00, 0.0); // vec3(0.3, 0.05, 0.1);//
     vec3 color = uMainLightColor;
 
     if(dotScaled > 0.0 || castShadow > 0) // shaded areas
