@@ -13,7 +13,8 @@ set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
 add_subdirectory(code/external/glad)
 add_subdirectory(code/external/glfw)  
 add_subdirectory(code/external/glm)   
-add_subdirectory(code/external/stb) 
+add_subdirectory(code/external/imgui) 
+# add_subdirectory(code/external/stb) # - is included by assimp
 add_subdirectory(code/application)
 
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)   
@@ -22,7 +23,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(code/external/assimp)  
 target_link_libraries(${PROJECT_NAME}  PRIVATE assimp)
 
-target_include_directories(${PROJECT_NAME} PRIVATE code/external/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC code/external/glfw/include)
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/cmake_config.hpp.in
