@@ -4,7 +4,7 @@ This is a WIP project aimed at familiarizing myself with OpenGL and graphics API
 
 Currently the jet model is animated flying over a simple scrolling terrain. The terrain is generated via the Fractal Brownian Motion and eroded based on the height gradients. 
 
-![render image](root/assets/images/cover.png "Raw patron count")
+![render image](root/assets/images/cover.png "Viewport screenshot")
 
 
 *note: to run the solution, please download the [assimp library](https://github.com/assimp/assimp/blob/master/Build.md) and put it into the root/code/external folder so that the path to the assimp's top CMakeLists.txt looks like root/code/external/assimp/CMakeLists.txt*
