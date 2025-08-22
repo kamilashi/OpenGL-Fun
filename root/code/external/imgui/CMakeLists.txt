@@ -16,5 +16,8 @@ add_library(imgui
 	${IMGU_HPP_HEADERS}
 )
 
+
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include )
 target_link_libraries(imgui PUBLIC glfw)
-target_include_directories(imgui PUBLIC ./include)
+
+target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD)

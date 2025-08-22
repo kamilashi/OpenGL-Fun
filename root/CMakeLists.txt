@@ -34,9 +34,6 @@ set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) 
 
 add_subdirectory(code/external/assimp EXCLUDE_FROM_ALL)  
-target_link_libraries(${PROJECT_NAME}  PRIVATE assimp)
-
-target_include_directories(${PROJECT_NAME} PUBLIC code/external/glfw/include)
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/cmake_config.hpp.in

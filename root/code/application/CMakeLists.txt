@@ -17,13 +17,15 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE 
         glad
         glm
+	assimp
+	imgui
         OpenGL::GL
 )
 
 if (TARGET glfw)
-  target_link_libraries(OpenGLApp PRIVATE glfw)
+  target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 elseif (TARGET glfw3)
-  target_link_libraries(OpenGLApp PRIVATE glfw3)
+  target_link_libraries(${PROJECT_NAME} PRIVATE glfw3)
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
