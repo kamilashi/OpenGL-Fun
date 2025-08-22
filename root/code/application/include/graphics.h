@@ -12,9 +12,9 @@ namespace Graphics
 	extern Camera* pViewPortCamera;
 	extern PerspCameraParams* pViewPortCameraParams;
 
-	extern void prepare(Scene* pScene);
+	void prepare(Scene* pScene);
 
-	extern void render(Scene* pScene, const ViewportParams& viewportParams, float time);
+	void render(Scene* pScene, const ViewportParams& viewportParams, float time);
 }
 
 #endif // !GRAPHICSH

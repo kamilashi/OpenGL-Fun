@@ -40,7 +40,7 @@ namespace Graphics
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 	}
 
-	extern void prepare(Scene* pScene)
+	void prepare(Scene* pScene)
 	{
 		Graphics::pViewPortCamera = &pScene->mainCamera;
 		Graphics::pViewPortCameraParams = &pScene->mainCameraParams;
@@ -64,7 +64,7 @@ namespace Graphics
 		bindDepthTexture(pScene->shadowMapTexture.id, depthMapFBO);
 	}
 
-	extern void render(Scene* pScene, const ViewportParams& viewportParams, float time)
+	void render(Scene* pScene, const ViewportParams& viewportParams, float time)
 	{
 		//rotateCamera(&pScene->mainCamera, time, 10, pScene->lookAtTarget);
 
