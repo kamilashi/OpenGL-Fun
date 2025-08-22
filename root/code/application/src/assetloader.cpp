@@ -65,7 +65,7 @@ std::string addDefines(const std::string& src, const std::vector<std::string>& d
 	return header + defs + "#line 1\n" + rest;
 }
 
-extern Graphics::ShaderSources AssetLoader::loadShaderFiles(
+extern ShaderSources AssetLoader::loadShaderFiles(
 	const std::string& baseName, 
 	const std::vector<std::string>& definesV, 
 	const std::vector<std::string>& definesF)
@@ -76,12 +76,12 @@ extern Graphics::ShaderSources AssetLoader::loadShaderFiles(
 	std::string vPath = dir + "/" + baseName + "V.shader";
 	std::string fPath = dir + "/" + baseName + "F.shader";
 
-	Graphics::ShaderSources shaderSources(addDefines(readFile(vPath), definesV), addDefines(readFile(fPath), definesF));
+	ShaderSources shaderSources(addDefines(readFile(vPath), definesV), addDefines(readFile(fPath), definesF));
 
 	return shaderSources;
 }
 
-extern Graphics::ShaderSources AssetLoader::loadShaderFiles(
+extern ShaderSources AssetLoader::loadShaderFiles(
 	const std::string& baseNameVert, 
 	const std::string& baseNameFrag, 
 	const std::vector<std::string>& definesV, 
@@ -92,19 +92,19 @@ extern Graphics::ShaderSources AssetLoader::loadShaderFiles(
 	std::string vPath = dir + "/" + baseNameVert + "V.shader";
 	std::string fPath = dir + "/" + baseNameFrag + "F.shader";
 
-	Graphics::ShaderSources shaderSources(addDefines(readFile(vPath), definesV), addDefines(readFile(fPath), definesF));
+	ShaderSources shaderSources(addDefines(readFile(vPath), definesV), addDefines(readFile(fPath), definesF));
 
 	return shaderSources;
 }
 
-Graphics::Mesh processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh processMesh(aiMesh* mesh, const aiScene* scene)
 {
-	std::vector<Graphics::VertexData>	vertices;
+	std::vector<VertexData>	vertices;
 	std::vector<uint>					 indices;
 
 	for (uint i = 0; i < mesh->mNumVertices; ++i)
 	{
-		Graphics::VertexData vertexData;
+		VertexData vertexData;
 
 		// positions
 		glm::vec3 pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
@@ -149,12 +149,12 @@ Graphics::Mesh processMesh(aiMesh* mesh, const aiScene* scene)
 		}
 	}
 
-	Graphics::Mesh oglMesh = Graphics::Mesh(vertices, indices/*, textures*/);
+	Mesh oglMesh = Mesh(vertices, indices/*, textures*/);
 
 	return oglMesh;
 }
 
-void processNode(vector<Graphics::Mesh>* pMeshes, aiNode* node, const aiScene* scene)
+void processNode(vector<Mesh>* pMeshes, aiNode* node, const aiScene* scene)
 {
 	for (uint i = 0; i < node->mNumMeshes; i++)
 	{
@@ -168,7 +168,7 @@ void processNode(vector<Graphics::Mesh>* pMeshes, aiNode* node, const aiScene* s
 	}
 }
 
-extern Graphics::Model AssetLoader::loadModel(string const& nameWithExtension)
+extern Model AssetLoader::loadModel(string const& nameWithExtension)
 {
 	std::string dir = std::string(DEFAULT_ASSET_DIR) + "/models";
 	std::string path = dir + "/" + nameWithExtension;
@@ -179,17 +179,17 @@ extern Graphics::Model AssetLoader::loadModel(string const& nameWithExtension)
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
-		return Graphics::Model();
+		return Model();
 	}
 
 	string directory = dir.substr(0, dir.find_last_of('/'));
 
-	std::vector<Graphics::Mesh> meshes;
+	std::vector<Mesh> meshes;
 
 	// process ASSIMP's root node recursively
 	processNode(&meshes, scene->mRootNode, scene);
 
-	Graphics::Model model = Graphics::Model(meshes);
+	Model model = Model(meshes);
 
 	return model;
 }

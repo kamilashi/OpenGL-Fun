@@ -5,22 +5,35 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Build GLFW as a subproject, but skip its extras
+# GLFW config
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
+
+# Assimp config
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)       
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)      
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)            
+
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+
+set(ASSIMP_BUILD_OBJ_IMPORTER  ON  CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_STL_IMPORTER  ON  CACHE BOOL "" FORCE)
 
 add_subdirectory(code/external/glad)
 add_subdirectory(code/external/glfw)  
 add_subdirectory(code/external/glm)   
 add_subdirectory(code/external/imgui) 
-# add_subdirectory(code/external/stb) # - is included by assimp
 add_subdirectory(code/application)
 
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)   
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) 
 
-add_subdirectory(code/external/assimp)  
+add_subdirectory(code/external/assimp EXCLUDE_FROM_ALL)  
 target_link_libraries(${PROJECT_NAME}  PRIVATE assimp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC code/external/glfw/include)

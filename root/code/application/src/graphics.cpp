@@ -1,138 +1,98 @@
 
 #include <glad.h>
-#include <stdexcept> 
-#include <iostream>
 
 #include "graphics.h"
-#include "assetloader.h"
 #include "camera.h"
+#include "scene.h"
 
 namespace Graphics
 {
+	extern Camera* pViewPortCamera = nullptr;
+	extern PerspCameraParams* pViewPortCameraParams = nullptr;
 
-	void Mesh::setupMesh()
+
+	inline void rotateCamera(Camera* camera, float degreeInRad, float distance, glm::vec3 lookAtTarget)
 	{
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glGenBuffers(1, &EBO);
+		float camX = sin(degreeInRad) * distance;
+		float camZ = cos(degreeInRad) * distance;
 
-		glBindVertexArray(VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VertexData), &vertices[0], GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint), &indices[0], GL_STATIC_DRAW);
-
-		// positions
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), nullptr);
-
-		// uvs
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, texCoords));
-
-		// normals
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
-
-		// tangents
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, tangent));
-
-		// bitangents
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, bitangent));
+		camera->viewMatrix = glm::lookAt(glm::vec3(camX, camera->position.y, camZ), lookAtTarget, glm::vec3(0.0, 1.0, 0.0));
 	}
 
-	void Mesh::draw()
+	static uint depthMapFBO = ~0x0;
+
+	static glm::mat4 debugQuadTransform;
+	static Model debugQuadModel;
+	static Shader debugShader;
+
+	void bindDepthTexture(uint textureId, uint frameBufferId)
 	{
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, nullptr);
-		glBindVertexArray(0);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureId, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void Model::draw()
+	void blitToTexture(Texture texture, uint frameBufferId)
 	{
-		for (auto it = meshes.begin(); it < meshes.end(); it++)
-		{
-			Mesh& mesh = *it;
-			mesh.draw();
-		}
+		glViewport(0, 0, texture.width, texture.height);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 	}
 
-
-	static uint compileStage(GLenum type, const std::string& src, const char* label) {
-		uint id = glCreateShader(type);
-		const char* csrc = src.c_str();
-		glShaderSource(id, 1, &csrc, nullptr);
-		glCompileShader(id);
-
-		int ok = 0;
-		glGetShaderiv(id, GL_COMPILE_STATUS, &ok);
-		if (!ok)
-		{
-			int len = 0; glGetShaderiv(id, GL_INFO_LOG_LENGTH, &len);
-			std::string log(len, '\0');
-			glGetShaderInfoLog(id, len, &len, log.data());
-			std::cerr << "[Shader compile error] " << label << ":\n" << log << "\n";
-			glDeleteShader(id);
-			throw std::runtime_error("Shader compilation failed");
-		}
-		return id;
-	}
-
-	static uint linkProgram(uint vs, uint fs)
+	extern void prepare(Scene* pScene)
 	{
-		uint prog = glCreateProgram();
-		glAttachShader(prog, vs);
-		glAttachShader(prog, fs);
-		glLinkProgram(prog);
+		Graphics::pViewPortCamera = &pScene->mainCamera;
+		Graphics::pViewPortCameraParams = &pScene->mainCameraParams;
 
-		int ok = 0;
-		glGetProgramiv(prog, GL_LINK_STATUS, &ok);
-		if (!ok)
-		{
-			int len = 0; glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
-			std::string log(len, '\0');
-			glGetProgramInfoLog(prog, len, &len, log.data());
+		glClearColor(pScene->sceneBackgroundColor.r, 
+					pScene->sceneBackgroundColor.g,
+					pScene->sceneBackgroundColor.b, 1.0f);
 
-			printf("Program link error \n %s\n", log.c_str());
+		glEnable(GL_DEPTH_TEST);
+		glClearDepth(1.0);
+		glEnable(GL_CULL_FACE);
 
-			glDeleteProgram(prog);
-			throw std::runtime_error("Program link failed");
-		}
-		glDetachShader(prog, vs);
-		glDetachShader(prog, fs);
-		glDeleteShader(vs);
-		glDeleteShader(fs);
+		debugQuadModel = Model(Mesh::Primitive::Quad);
+		debugShader = Shader("debug", true, { "RENDER_IN_SCREEN_SPACE" });
 
-		return prog;
+		glUseProgram(debugShader.id);
+		debugShader.setTransformUniforms(pScene->mainCamera, debugQuadTransform);
+
+		glGenFramebuffers(1, &depthMapFBO);
+
+		bindDepthTexture(pScene->shadowMapTexture.id, depthMapFBO);
 	}
 
-	Shader::Shader(const char* name, bool combine,
-		const std::vector<std::string>& definesV,
-		const std::vector<std::string>& definesF)
+	extern void render(Scene* pScene, const ViewportParams& viewportParams, float time)
 	{
-		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(name, definesV, definesF);
-		uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
-		uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
-		id = linkProgram(vs, fs);
+		//rotateCamera(&pScene->mainCamera, time, 10, pScene->lookAtTarget);
 
-		uniforms = ShaderUniforms(id);
+		blitToTexture(pScene->shadowMapTexture, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		glDisable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		pScene->renderShadowCasterPass(time);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, viewportParams.width, viewportParams.height);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, pScene->shadowMapTexture.id);
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		pScene->renderMainPass(time);
+
+/*
+		glUseProgram(debugShader.id);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, pScene->getDebugTextureId());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		debugQuadModel.draw();*/
 	}
-
-	Shader::Shader(const char* nameV, 
-		const char* nameF,
-		const std::vector<std::string>& definesV,
-		const std::vector<std::string>& definesF)
-	{
-		Graphics::ShaderSources src = AssetLoader::loadShaderFiles(nameV, nameF, definesV, definesF);
-		uint vs = compileStage(GL_VERTEX_SHADER, src.vertex, "vertex");
-		uint fs = compileStage(GL_FRAGMENT_SHADER, src.fragment, "fragment");
-		id = linkProgram(vs, fs);
-
-		uniforms = ShaderUniforms(id);
-	}
-
 }
