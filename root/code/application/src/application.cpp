@@ -1,6 +1,10 @@
 
 #include <GLFW/glfw3.h>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "application.h"
 #include "graphics.h"
 #include "simulation.h"
@@ -24,6 +28,27 @@ void onWindowResize(GLFWwindow* pWin, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void setupImGUI(GLFWwindow* pWindow, GLFWmonitor* pPrimaryMonitor)
+{
+	float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(pPrimaryMonitor);
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	ImGui::StyleColorsDark();
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.ScaleAllSizes(main_scale);        
+	style.FontScaleDpi = main_scale;        
+
+	ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
+
+	const char* glsl_version = "#version 330 core";
+	ImGui_ImplOpenGL3_Init(glsl_version);
+}
+
 int Application::runWindow()
 {
 	GLFWwindow* window;
@@ -32,6 +57,7 @@ int Application::runWindow()
 		return -1;
 
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+
 
 	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
@@ -50,6 +76,9 @@ int Application::runWindow()
 	// VSync
 	glfwSwapInterval(1);
 
+	// GUI
+	setupImGUI(window, primaryMonitor);
+
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		return -1;
@@ -66,13 +95,26 @@ int Application::runWindow()
 	{
 		float totalTime = static_cast<float>(glfwGetTime());
 
+		glfwPollEvents();
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		//ImGui::ShowDemoWindow();
+
 		Simulation::run(&scene, totalTime);
 		Graphics::render(&scene, viewportParams, totalTime);
 
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		glfwSwapBuffers(window);
 
-		glfwPollEvents();
 	}
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwTerminate();
 
