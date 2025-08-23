@@ -9,6 +9,7 @@
 #include "graphics.h"
 #include "simulation.h"
 #include "scene.h"
+#include "uicontroller.h"
 
 namespace Application
 {
@@ -84,12 +85,16 @@ int Application::runWindow()
 		return -1;
 	}
 
+	UI::SceneControlData sceneControlData;
+	sceneControlData.resetToDefault();
+
 	Scene scene = Scene();
 	scene.create(viewportParams);
 
 	Graphics::prepare(&scene);
 
 	glfwSetFramebufferSizeCallback(window, onWindowResize);
+	bool consoleOpen;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -101,15 +106,18 @@ int Application::runWindow()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		//ImGui::ShowDemoWindow();
+		//ImGui::ShowStyleSelector("Selector");
+		UI::showUiWidget(&sceneControlData);
+
+		scene.update(sceneControlData);
 
 		Simulation::run(&scene, totalTime);
-		Graphics::render(&scene, viewportParams, totalTime);
+		Graphics::render(&scene, viewportParams, sceneControlData.showShadowDepthMap, totalTime);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
-
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();

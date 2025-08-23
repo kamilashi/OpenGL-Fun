@@ -3,12 +3,14 @@
 
 #include "asset.h"
 #include "application.h"
+#include "uicontroller.h"
 
 class Scene
 {
 public:
 	Scene() {};
 	void create(const ViewportParams& viewportParams);
+	void update(const UI::SceneControlData& sceneData);
 	void renderShadowCasterPass(float time);
 	void renderMainPass(float time);
 	uint getDebugTextureId() { return shadowMapTexture.id; }
@@ -47,6 +49,7 @@ public:
 	// belongs in the graphics file ?
 	Texture shadowMapTexture;
 
+private:
 	void render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, bool shadowCasterPass);
 };
 

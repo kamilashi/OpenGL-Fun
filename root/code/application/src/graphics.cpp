@@ -64,7 +64,7 @@ namespace Graphics
 		bindDepthTexture(pScene->shadowMapTexture.id, depthMapFBO);
 	}
 
-	void render(Scene* pScene, const ViewportParams& viewportParams, float time)
+	void render(Scene* pScene, const ViewportParams& viewportParams, const bool showDebugQuad, const float time)
 	{
 		//rotateCamera(&pScene->mainCamera, time, 10, pScene->lookAtTarget);
 
@@ -86,13 +86,15 @@ namespace Graphics
 		glCullFace(GL_BACK);
 		pScene->renderMainPass(time);
 
-/*
-		glUseProgram(debugShader.id);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, pScene->getDebugTextureId());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		debugQuadModel.draw();*/
+		if (showDebugQuad)
+		{
+			glUseProgram(debugShader.id);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, pScene->getDebugTextureId());
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			debugQuadModel.draw();
+		}
 	}
 }

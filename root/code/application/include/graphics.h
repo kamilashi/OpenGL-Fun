@@ -14,7 +14,7 @@ namespace Graphics
 
 	void prepare(Scene* pScene);
 
-	void render(Scene* pScene, const ViewportParams& viewportParams, float time);
+	void render(Scene* pScene, const ViewportParams& viewportParams, const bool showDebugQuad,const float time);
 }
 
 #endif // !GRAPHICSH

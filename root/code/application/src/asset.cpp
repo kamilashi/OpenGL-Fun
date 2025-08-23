@@ -120,6 +120,16 @@ void Shader::setCustomUniformF3(uint uniformLoc, const glm::vec3& color)
 	glUniform3f(uniformLoc, color.x, color.y, color.z);
 }
 
+void Shader::setCustomUniformF3(uint uniformLoc, const float color[])
+{
+	glUniform3f(uniformLoc, color[0], color[1], color[2]);
+}
+
+void Shader::setCustomUniformF2(uint uniformLoc, const float color[])
+{
+	glUniform2f(uniformLoc, color[0], color[1]);
+}
+
 void Shader::setCustomUniformM4(uint uniformLoc, const glm::mat4& matrix)
 {
 	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, glm::value_ptr(matrix));

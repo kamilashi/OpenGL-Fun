@@ -7,6 +7,62 @@
 #include "graphics.h"
 #include "assetloader.h"
 
+void setVec3(const float source[3], glm::vec3* pDestication)
+{
+	pDestication->x = source[0];
+	pDestication->y = source[1];
+	pDestication->z = source[2];
+}
+
+void setVec2(const float source[2], glm::vec2* pDestication)
+{
+	pDestication->x = source[0];
+	pDestication->y = source[1];
+}
+
+
+void inline updateMainLight(Scene* pScene)
+{
+	pScene->lightDirection = glm::normalize(glm::vec3(glm::vec3(pScene->terrainTransform[3]) - pScene->lightPosition));
+
+	const float distance = glm::length(pScene->lightPosition - glm::vec3(pScene->terrainTransform[3]));
+	const float boundingSize = 5.0f;
+	pScene->mainLightCamera.createOrthogonalProjection(-boundingSize, boundingSize, -boundingSize, boundingSize, distance - 2.2f, 4.5 + distance);
+	pScene->mainLightCamera.createView(pScene->lightPosition);
+	pScene->mainLightCamera.lookAt(glm::vec3(pScene->mainLightCamera.position + pScene->lightDirection));
+
+	pScene->lightSpaceMatrix = pScene->mainLightCamera.projMatrix * pScene->mainLightCamera.viewMatrix;
+
+	glUseProgram(pScene->defaultShader.id);
+	pScene->defaultShader.setMainLightUniforms(pScene->lightColor, pScene->lightDirection);
+	pScene->defaultShader.setCustomUniformM4(pScene->defaultShader.getLoc("uLightSpaceMatrix"), pScene->lightSpaceMatrix);
+
+	glUseProgram(pScene->defaultDepthShader.id);
+	pScene->defaultDepthShader.setMainLightUniforms(pScene->lightColor, pScene->lightDirection);
+
+	glUseProgram(pScene->terrainShader.id);
+	pScene->terrainShader.setMainLightUniforms(pScene->lightColor, pScene->lightDirection);
+	pScene->terrainShader.setCustomUniformM4(pScene->terrainShader.getLoc("uLightSpaceMatrix"), pScene->lightSpaceMatrix);
+
+	glUseProgram(pScene->terrainDepthShader.id);
+	pScene->terrainDepthShader.setMainLightUniforms(pScene->lightColor, pScene->lightDirection);
+}
+
+void inline updateTerrainShaders(Scene* pScene, const UI::SceneControlData& sceneData)
+{
+	auto updateShader = [&](Shader& terrainShader) 
+	{
+		glUseProgram(terrainShader.id);
+		terrainShader.setCustomUniformF3(terrainShader.getLoc("uAmplitudes"), (sceneData.peakAmplitudes));
+		terrainShader.setCustomUniformF3(terrainShader.getLoc("uErosionIntensity"), (sceneData.erosionIntensities));
+		terrainShader.setCustomUniformF2(terrainShader.getLoc("uSampleOffset"), (sceneData.sampleOffset));
+		terrainShader.setCustomUniformF(terrainShader.getLoc("uLacunarity"), sceneData.lacunarity);
+	};
+
+	updateShader(pScene->terrainShader);
+	updateShader(pScene->terrainDepthShader);
+}
+
 void Scene::create(const ViewportParams& viewportParams)
 {
 	sceneBackgroundColor = glm::vec3(0.15f, 0.07f, 0.5f);
@@ -18,7 +74,6 @@ void Scene::create(const ViewportParams& viewportParams)
 	lightPosition = glm::vec3(2.0f, 2.0f, -1.5f);
 	lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	lightDirection = glm::normalize(glm::vec3(glm::vec3(terrainTransform[3]) - lightPosition));
-	glm::normalize(lightDirection);
 
 	jetStartTransform = glm::mat4(1.0f);
 	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.7f, -0.0f));
@@ -27,7 +82,6 @@ void Scene::create(const ViewportParams& viewportParams)
 	jetTransform = glm::mat4(1.0f);
 	jetColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
-
 	// cameras
 	mainCamera.createPerspectiveProjection(mainCameraParams, viewportParams.width, viewportParams.height);
 	mainCamera.createView(glm::vec3(3.2f, 8.0f, 3.2f));
@@ -35,9 +89,9 @@ void Scene::create(const ViewportParams& viewportParams)
 	lookAtTarget.y += 0.5;
 	mainCamera.lookAt(lookAtTarget);
 
-	float cameraOrbitRadius = mainCamera.position.length();
+	const float cameraOrbitRadius = mainCamera.position.length();
 
-	float sceneBoxRadius = 5.0f;
+	const float sceneBoxRadius = 5.0f;
 	mainLightCamera.createOrthogonalProjection(-sceneBoxRadius, sceneBoxRadius, -sceneBoxRadius, sceneBoxRadius, 1.0f, 7.5f);
 	mainLightCamera.createView(lightPosition);
 	mainLightCamera.lookAt(glm::vec3(mainLightCamera.position + lightDirection));
@@ -77,6 +131,15 @@ void Scene::create(const ViewportParams& viewportParams)
 	shadowMapTexture = Texture(4096, 4096, GL_DEPTH_COMPONENT, GL_FLOAT);
 }
 
+void Scene::update(const UI::SceneControlData& sceneData)
+{
+	setVec3(sceneData.mainLightPos, &lightPosition);
+
+	updateMainLight(this);
+
+	updateTerrainShaders(this, sceneData);
+}
+
 void Scene::render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, bool shadowCasterPass = false)
 {
 	Shader& terrainShaderVar = *pTerrainShaderVar;
@@ -103,11 +166,12 @@ void Scene::render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const C
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture.id);
 	}
 
+/*
 	defaultShaderVar.setTransformUniforms(activeCam, terrainTransform);
 	defaultShaderVar.setMainColorUniform(terrainColor);
 	defaultShaderVar.setCustomUniformF(defaultShaderVar.uniforms.timeLoc, time);
 
-	terrainCubeSidesModel.draw();
+	terrainCubeSidesModel.draw();*/
 
 	defaultShaderVar.setTransformUniforms(activeCam, jetTransform);
 	defaultShaderVar.setMainColorUniform(jetColor);

@@ -76,6 +76,8 @@ public:
 
 	void setMainColorUniform(const glm::vec3& color);
 	void setCustomUniformF3(uint uniformLoc, const glm::vec3& color);
+	void setCustomUniformF3(uint uniformLoc, const float color[]);
+	void setCustomUniformF2(uint uniformLoc, const float color[]);
 	void setCustomUniformM4(uint uniformLoc, const glm::mat4& matrix);
 	void setCustomUniformF(uint uniformLoc, float value);
 };

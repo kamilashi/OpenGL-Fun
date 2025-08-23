@@ -15,7 +15,6 @@ out vec3 WorldPos;
 
 #ifndef SHADOW_DEPTH_PASS
     out vec4 FragPosLightSpace;
-    out float DitherUVSample;
     uniform mat4 uLightSpaceMatrix;
 #endif
 
@@ -46,7 +45,6 @@ in vec3 WorldPos;
 
 #ifndef SHADOW_DEPTH_PASS
     in vec4 FragPosLightSpace;
-    in float DitherUVSample;
     uniform sampler2D shadowMap;
 
     uniform vec3 uMainColor;
