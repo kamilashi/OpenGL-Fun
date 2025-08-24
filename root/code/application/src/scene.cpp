@@ -14,6 +14,13 @@ void setVec3(const float source[3], glm::vec3* pDestication)
 	pDestication->z = source[2];
 }
 
+void setVec3(const float source[3], float dest[3])
+{
+	dest[0] = source[0];
+	dest[1] = source[1];
+	dest[2] = source[2];
+}
+
 void setVec2(const float source[2], glm::vec2* pDestication)
 {
 	pDestication->x = source[0];
@@ -48,6 +55,14 @@ void inline updateMainLight(Scene* pScene)
 	pScene->terrainDepthShader.setMainLightUniforms(pScene->lightColor, pScene->lightDirection);
 }
 
+
+void inline updateJet(Scene* pScene, const UI::SceneControlData& sceneData)
+{
+	pScene->jetStartTransform[3][0] = sceneData.jetPosition[0];
+	pScene->jetStartTransform[3][1] = sceneData.jetPosition[1];
+	pScene->jetStartTransform[3][2] = sceneData.jetPosition[2];
+}
+
 void inline updateTerrainShaders(Scene* pScene, const UI::SceneControlData& sceneData)
 {
 	auto updateShader = [&](Shader& terrainShader) 
@@ -77,8 +92,8 @@ void Scene::create(const ViewportParams& viewportParams)
 
 	jetStartTransform = glm::mat4(1.0f);
 	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.7f, -0.0f));
-	jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	jetStartTransform = glm::scale(jetStartTransform, glm::vec3(0.5f, 0.5f, 0.5f));
+	jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	jetTransform = glm::mat4(1.0f);
 	jetColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
@@ -100,7 +115,6 @@ void Scene::create(const ViewportParams& viewportParams)
 
 	// models
 	terrainCubeModel = AssetLoader::loadModel("terraincube.obj");
-	terrainCubeSidesModel = AssetLoader::loadModel("terraincubesides.obj");
 	jetModel = AssetLoader::loadModel("jet.obj");
 
 	defaultDepthShader = Shader("default", true, { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
@@ -137,6 +151,8 @@ void Scene::update(const UI::SceneControlData& sceneData)
 
 	updateMainLight(this);
 
+	updateJet(this, sceneData);
+
 	updateTerrainShaders(this, sceneData);
 }
 
@@ -166,15 +182,10 @@ void Scene::render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const C
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture.id);
 	}
 
-/*
-	defaultShaderVar.setTransformUniforms(activeCam, terrainTransform);
-	defaultShaderVar.setMainColorUniform(terrainColor);
-	defaultShaderVar.setCustomUniformF(defaultShaderVar.uniforms.timeLoc, time);
-
-	terrainCubeSidesModel.draw();*/
-
 	defaultShaderVar.setTransformUniforms(activeCam, jetTransform);
 	defaultShaderVar.setMainColorUniform(jetColor);
+	defaultShaderVar.setCustomUniformF(defaultShaderVar.uniforms.timeLoc, time);
+
 	jetModel.draw();
 }
 

@@ -16,11 +16,12 @@ namespace UI
 		float sampleOffset[2];
 		float peakAmplitudes[octaveCount];
 		float erosionIntensities[octaveCount];
-		float mainLightPos[octaveCount];
+		float mainLightPos[3];
+		float jetPosition[3];
 		bool showShadowDepthMap;
 
 
-		void resetToDefault()
+		void reset()
 		{
 			lacunarity = 2.0f;
 
@@ -38,6 +39,10 @@ namespace UI
 
 			sampleOffset[0] = 0.0f;
 			sampleOffset[1] = 0.0f;
+
+			jetPosition[0] = 0.0f;
+			jetPosition[1] = 0.7f;
+			jetPosition[2] = 0.0f;
 
 			showShadowDepthMap = false;
 		}

@@ -41,7 +41,7 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
 
     sampleScale *= lacunarity;
     float height3 = GradientNoise01(sampleCoords, sampleScale) * intensity.z;
-    height3 = erode(height3, getNoiseGradient(height3, sampleCoords, 0.1, intensity.z, sampleScale), erosionIntensity.y);
+    height3 = erode(height3, getNoiseGradient(height3, sampleCoords, 0.1, intensity.z, sampleScale), erosionIntensity.z);
 
     float heightOffset = height1 + height2 + height3;
 

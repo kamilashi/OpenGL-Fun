@@ -37,7 +37,6 @@ public:
 	glm::mat4 lightSpaceMatrix;
 
 	Model terrainCubeModel;
-	Model terrainCubeSidesModel;
 	Model jetModel;
 
 	Shader defaultShader;

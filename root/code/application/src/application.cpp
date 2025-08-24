@@ -86,7 +86,7 @@ int Application::runWindow()
 	}
 
 	UI::SceneControlData sceneControlData;
-	sceneControlData.resetToDefault();
+	sceneControlData.reset();
 
 	Scene scene = Scene();
 	scene.create(viewportParams);
@@ -105,8 +105,7 @@ int Application::runWindow()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		//ImGui::ShowDemoWindow();
-		//ImGui::ShowStyleSelector("Selector");
+
 		UI::showUiWidget(&sceneControlData);
 
 		scene.update(sceneControlData);

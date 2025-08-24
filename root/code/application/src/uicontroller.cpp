@@ -23,10 +23,22 @@ extern void UI::showUiWidget(SceneControlData* pSceneControlData)
 	{
 		ImGui::InputFloat3("Sun Position", pSceneControlData->mainLightPos);
 	}
+	
+	if (ImGui::CollapsingHeader("Jet"))
+	{
+		ImGui::InputFloat3("Root Position", pSceneControlData->jetPosition);
+	}
 
 	if (ImGui::CollapsingHeader("Debug"))
 	{
 		ImGui::Checkbox("Show Shadow Depth Map", &pSceneControlData->showShadowDepthMap);
+	}
+
+	ImGui::Separator();
+
+	if (ImGui::SmallButton("Reset to Default"))
+	{
+		pSceneControlData->reset();
 	}
 
 	ImGui::End();
