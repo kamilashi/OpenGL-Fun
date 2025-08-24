@@ -86,7 +86,7 @@ int Application::runWindow()
 	}
 
 	UI::SceneControlData sceneControlData;
-	sceneControlData.reset();
+	sceneControlData.fillPreset0();
 
 	Scene scene = Scene();
 	scene.create(viewportParams);

@@ -36,10 +36,24 @@ extern void UI::showUiWidget(SceneControlData* pSceneControlData)
 
 	ImGui::Separator();
 
+	const char* presetNames[] =
+	{
+		"Cappadocia", "Patagonia"
+	};
+
+	static int presetIdx;
+	ImGui::Combo("Preset", &presetIdx, presetNames, IM_ARRAYSIZE(presetNames));
+
+	if (pSceneControlData->currentPresetIdx != presetIdx)
+	{
+		pSceneControlData->set(presetIdx);
+	}
+
+/*
 	if (ImGui::SmallButton("Reset to Default"))
 	{
-		pSceneControlData->reset();
-	}
+		pSceneControlData->fillPreset1();
+	}*/
 
 	ImGui::End();
 }
