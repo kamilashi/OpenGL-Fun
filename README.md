@@ -11,3 +11,9 @@ Currently the jet model is animated flying over a simple scrolling terrain. The 
 *to run the solution, please download the [assimp library](https://github.com/assimp/assimp/blob/master/Build.md) and put it into the root/code/external folder so that the path to the assimp's top CMakeLists.txt looks like root/code/external/assimp/CMakeLists.txt. Then you would need to run the createvsproject.bat*
 
 *to run the build, pull the root/out/build/code/application/Debug folder and run the OpenGLApp executable*
+
+
+
+![gui image](root/assets/images/imgui.png "gui screenshot")
+
+The current version supports real-time scene controls.
