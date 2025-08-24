@@ -33,9 +33,9 @@ namespace UI
 			erosionIntensities[1] = 0.3f;
 			erosionIntensities[2] = 1.5f;
 
-			mainLightPos[0] = 2.0f;
+			mainLightPos[0] = -2.0f;
 			mainLightPos[1] = 2.0f;
-			mainLightPos[2] = -1.5f;
+			mainLightPos[2] = 1.5f;
 
 			sampleOffset[0] = 0.0f;
 			sampleOffset[1] = 0.0f;
