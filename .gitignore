@@ -11,11 +11,22 @@ CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
 
-/build/
-/out/
-
-root/out/*
 root/out/build/.vs/*
+
+root/out/build/*
+
+# Reopen the path to `assets`
+!root/out/build/assets/
+!root/out/build/assets/**
+
+!root/out/build/code/                 
+root/out/build/code/*                
+!root/out/build/code/application/
+root/out/build/code/application/*
+!root/out/build/code/application/Debug/
+!root/out/build/code/application/Debug/**
+
+*.pdb
 
 **/.vs/
 **/*.suo
