@@ -69,6 +69,17 @@ namespace Profiler
 		profileTree.reset();
 	}
 
+	double getMovingAverage(const ScopeStats& stats)
+	{
+		double ave = 0;
+		for (size_t i = 0; i < stats.window.size(); ++i) {
+			ave += stats.window[i];
+		}
+		ave /= ScopeStats::windowSize;
+
+		return ave;
+	}
+
 	std::string FormatProfileRowIndented(const ScopeProfileData& data, const ScopeStats& stats, int depth)
 	{
 		char buffer[256];
@@ -79,12 +90,15 @@ namespace Profiler
 		indent[0] = '|';
 		indent[indentLen] = '\0';
 
+		double average = getMovingAverage(stats);
+
 		std::snprintf(
 			buffer, sizeof(buffer),
-			"               | %16.6f     | %10.6f | %10.6f | %s%-12s",
+			"               | %16.6f     | %10.6f | %10.6f |      %10.6f      | %s%-12s",
 			data.elapsedTime,
 			stats.maxElapsedTime,
 			stats.minElapsedTime,
+			average,
 			indent,
 			data.name 
 		);
@@ -113,7 +127,7 @@ namespace Profiler
 		ImGui::Begin("Profiler");
 		ImGui::Checkbox("Pause", &ScopeTimer::s_paused);
 
-		ImGui::Text("Frame %08llu | Duration - real (ms) | - max (ms) | - min (ms) | Scope ", static_cast<unsigned long long>(ScopeTimer::s_frameNumber));
+		ImGui::Text("Frame %08llu | Duration - real (ms) | - max (ms) | - min (ms) | - avg in %u fr (ms) | Scope ", static_cast<unsigned long long>(ScopeTimer::s_frameNumber), ScopeStats::windowSize);
 		ImGui::Separator();
 
 		if (profileTree.nodes.size() > 1)

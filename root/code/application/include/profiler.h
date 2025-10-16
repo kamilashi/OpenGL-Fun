@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <chrono>
 #include <algorithm> 
+#include <deque>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -54,12 +55,15 @@ namespace Profiler
 	public:
 		double minElapsedTime;
 		double maxElapsedTime;
+		std::deque<double> window;
+		static const size_t windowSize = 120;
 
 		ScopeStats() {};
 
 		ScopeStats(double minTime, double maxTime) :
 			minElapsedTime(minTime),
-			maxElapsedTime(maxTime) {};
+			maxElapsedTime(maxTime), 
+			window(windowSize, 0.0) {};
 	};
 
 	struct ScopeProfileNode
@@ -90,6 +94,11 @@ namespace Profiler
 	struct ScopeProfileTree
 	{
 	public:
+		enum
+		{
+			WindowSize = 60
+		};
+
 		const size_t startIdx = 1;
 
 		std::vector<ScopeProfileNode> nodes;
@@ -151,6 +160,8 @@ namespace Profiler
 				ScopeStats& nodeStats = it->second;
 				nodeStats.maxElapsedTime = std::max(nodeStats.maxElapsedTime, pData->elapsedTime);
 				nodeStats.minElapsedTime = std::min(nodeStats.minElapsedTime, pData->elapsedTime);
+				nodeStats.window.push_front(pData->elapsedTime);
+				nodeStats.window.pop_back();            
 			}
 			else
 			{
