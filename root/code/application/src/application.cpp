@@ -11,6 +11,8 @@
 #include "scene.h"
 #include "uicontroller.h"
 
+#include "profiler.h"
+
 namespace Application
 {
 	WindowParams startupParams;
@@ -64,7 +66,7 @@ int Application::runWindow()
 
 	viewportParams.recalculate(static_cast<int>(mode->width / 2.0f), startupParams.aspectRatio);
 
-	window = glfwCreateWindow(viewportParams.width, viewportParams.height, "OpenGLApp", nullptr, nullptr);
+	window = glfwCreateWindow(viewportParams.width, viewportParams.height, "Jet Loop", nullptr, nullptr);
 
 	if (!window)
 	{
@@ -80,6 +82,8 @@ int Application::runWindow()
 	// GUI
 	setupImGUI(window, primaryMonitor);
 
+	PROFILER_INIT();
+
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		return -1;
@@ -94,7 +98,6 @@ int Application::runWindow()
 	Graphics::prepare(&scene);
 
 	glfwSetFramebufferSizeCallback(window, onWindowResize);
-	bool consoleOpen;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -108,16 +111,26 @@ int Application::runWindow()
 
 		UI::showUiWidget(&sceneControlData);
 
+		PROFILER_START_FRAME();
+
+		{
+		PROFILE_SCOPE("Frame");
 		scene.update(sceneControlData);
 
 		Simulation::run(&scene, totalTime);
 		Graphics::render(&scene, viewportParams, sceneControlData.showShadowDepthMap, totalTime);
+		}
+
+		PROFILER_END_FRAME();
+		PROFILER_LOG();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 	}
+
+	PROFILER_END();
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

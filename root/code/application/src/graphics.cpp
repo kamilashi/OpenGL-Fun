@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "camera.h"
 #include "scene.h"
+#include "profiler.h"
 
 namespace Graphics
 {
@@ -66,6 +67,7 @@ namespace Graphics
 
 	void render(Scene* pScene, const ViewportParams& viewportParams, const bool showDebugQuad, const float time)
 	{
+		PROFILE_SCOPE("Render");
 		//rotateCamera(&pScene->mainCamera, time, 10, pScene->lookAtTarget);
 
 		blitToTexture(pScene->shadowMapTexture, depthMapFBO);

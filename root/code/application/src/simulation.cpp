@@ -1,8 +1,11 @@
 #include "simulation.h"
+#include "profiler.h"
 
 
 void Simulation::run(Scene* pScene, float time)
 {
+	PROFILE_SCOPE("Simulation");
+
 	float speed = 1.0f;
 	float offsetScale = 0.3f;
 	float offset = sin(time * speed) * offsetScale;
