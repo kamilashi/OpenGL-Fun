@@ -59,9 +59,9 @@ namespace Profiler
 		ScopeTimer::s_frameNumber++;
 	}
 
-
 	void OnEndFrame()
 	{
+		DrawImGui();
 	}
 
 	void EndProfiler()

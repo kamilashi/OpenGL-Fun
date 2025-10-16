@@ -130,13 +130,12 @@ namespace Profiler
 #ifndef PROFILER_MACROS_DEFINED
 #define PROFILER_MACROS_DEFINED
 
-#if defined (PROFILE)
-	#define PROFILER_INIT() 				Profiler::InitProfiler()											
+#if defined (PROFILE)							
 	#define PROFILE_SCOPE(nameLiteral)		Profiler::ScopeTimer timer(nameLiteral)
+	#define PROFILER_INIT() 				Profiler::InitProfiler()				
 	#define PROFILER_START_FRAME() 			Profiler::OnStartFrame()
 	#define PROFILER_END_FRAME() 			Profiler::OnEndFrame()
-	#define PROFILER_END() 					Profiler::EndProfiler()		
-	#define PROFILER_LOG() 					Profiler::DrawImGui()											
+	#define PROFILER_END() 					Profiler::EndProfiler()							
 #else
 	#define PROFILER_INIT()					do {} while (0)
 	#define PROFILE_SCOPE(nameLiteral)		do {} while (0)

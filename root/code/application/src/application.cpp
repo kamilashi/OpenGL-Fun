@@ -109,9 +109,9 @@ int Application::runWindow()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		UI::showUiWidget(&sceneControlData);
-
 		PROFILER_START_FRAME();
+
+		UI::showUiWidget(&sceneControlData);
 
 		{
 		PROFILE_SCOPE("Frame");
@@ -122,7 +122,6 @@ int Application::runWindow()
 		}
 
 		PROFILER_END_FRAME();
-		PROFILER_LOG();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
