@@ -7,7 +7,7 @@ namespace Profiler
 	int  ScopeTimer::s_frameNumber = 0;
 	bool ScopeTimer::s_paused = false;
 
-	ScopeTimer::ScopeTimer(const char* name) : m_name(name)
+	ScopeTimer::ScopeTimer(int id, const char* name) : m_id(id), m_name(name)
 	{
 		if (s_paused)
 		{
@@ -16,7 +16,7 @@ namespace Profiler
 		
 		m_startTimePoint = std::chrono::high_resolution_clock::now();
 
-		profileTree.onNodeOpen();
+		profileTree.onNodeOpen(m_id);
 	};
 
 	ScopeTimer::~ScopeTimer()
@@ -69,11 +69,11 @@ namespace Profiler
 		profileTree.reset();
 	}
 
-	std::string FormatProfileRowIndented(const ScopeProfileData& data, int depth)
+	std::string FormatProfileRowIndented(const ScopeProfileData& data, const ScopeStats& stats, int depth)
 	{
 		char buffer[256];
 		char indent[64];
-		int indentLen = depth * 4;
+		int indentLen = depth * 3;
 		indentLen = indentLen < 60 ? indentLen : 60;
 		std::memset(indent, '_', indentLen);
 		indent[0] = '|';
@@ -81,10 +81,10 @@ namespace Profiler
 
 		std::snprintf(
 			buffer, sizeof(buffer),
-			"%8llu | %14.6f | %16.3f | %s%-12s",
-			static_cast<unsigned long long>(ScopeTimer::s_frameNumber),
+			"               | %16.6f     | %10.6f | %10.6f | %s%-12s",
 			data.elapsedTime,
-			data.startTime,
+			stats.maxElapsedTime,
+			stats.minElapsedTime,
 			indent,
 			data.name 
 		);
@@ -97,7 +97,9 @@ namespace Profiler
 
 		const ScopeProfileNode& node = profileTree.nodes[idx];
 
-		const std::string line = FormatProfileRowIndented(node.data, depth);
+		const ScopeStats& statsIt = profileTree.stats[node.id];
+
+		const std::string line = FormatProfileRowIndented(node.data, statsIt, depth);
 		ImGui::TextUnformatted(line.c_str());
 
 		for (size_t child = node.firstChildIdx; child != ~0u; child = profileTree.nodes[child].nextSiblingIdx)
@@ -111,7 +113,7 @@ namespace Profiler
 		ImGui::Begin("Profiler");
 		ImGui::Checkbox("Pause", &ScopeTimer::s_paused);
 
-		ImGui::TextUnformatted("Frame No | Duration (ms) |  Start time (ms) | Scope ");
+		ImGui::Text("Frame %08llu | Duration - real (ms) | - max (ms) | - min (ms) | Scope ", static_cast<unsigned long long>(ScopeTimer::s_frameNumber));
 		ImGui::Separator();
 
 		if (profileTree.nodes.size() > 1)

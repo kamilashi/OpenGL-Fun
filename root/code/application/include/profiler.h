@@ -2,13 +2,16 @@
 #define PROFILER_H
 
 #include <vector>
+#include <unordered_map>
 #include <chrono>
+#include <algorithm> 
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
 #include "buildconfig.h"
+#include "helpers.h"
 
 namespace Profiler
 {
@@ -17,11 +20,13 @@ namespace Profiler
 	public:
 		static int s_frameNumber;
 		static bool s_paused;
-		ScopeTimer(const char* name);
+
+		ScopeTimer(int id, const char* name);
 
 		~ScopeTimer();
 
 	private:
+		int m_id;
 		const char* m_name;
 
 		std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
@@ -44,20 +49,37 @@ namespace Profiler
 			elapsedTime(elapsedT) {};
 	};
 
+	struct ScopeStats
+	{
+	public:
+		double minElapsedTime;
+		double maxElapsedTime;
+
+		ScopeStats() {};
+
+		ScopeStats(double minTime, double maxTime) :
+			minElapsedTime(minTime),
+			maxElapsedTime(maxTime) {};
+	};
+
 	struct ScopeProfileNode
 	{
 	public:
 		ScopeProfileData data;
+
+		int id;
 
 		size_t parentIdx = ~0u;
 		size_t firstChildIdx = ~0u;
 		size_t lastChildIdx = ~0u;
 		size_t nextSiblingIdx = ~0u;
 
-		ScopeProfileNode() {
+		ScopeProfileNode()
+		{
 			std::memset(this, ~0x0, sizeof(*this));
 		};
-		ScopeProfileNode(size_t parent) : parentIdx(parent) {};
+
+		ScopeProfileNode(int id, size_t parent) : id(id), parentIdx(parent) {};
 
 		void setData(ScopeProfileData* pData)
 		{
@@ -68,25 +90,27 @@ namespace Profiler
 	struct ScopeProfileTree
 	{
 	public:
+		const size_t startIdx = 1;
 
 		std::vector<ScopeProfileNode> nodes;
 		std::vector<size_t>  openNodes;
-		const size_t startIdx = 1;
+
+		std::unordered_map<int, ScopeStats> stats;
 
 		void reset() 
 		{
 			nodes.clear();
 			openNodes.clear();
 
-			pushNode(~0u); // root
+			pushNode(~0u, ~0u); // root
 			openNodes.push_back(0);
 		}
 
-		void onNodeOpen()
+		void onNodeOpen(int id)
 		{
 			const size_t parentIdx = openNodes.back();
 			const size_t thisIdx = nodes.size();
-			pushNode(parentIdx);
+			pushNode(parentIdx, id);
 
 			ScopeProfileNode& parentNode = nodes[parentIdx];
 			if (parentNode.firstChildIdx == ~0u) {
@@ -107,13 +131,31 @@ namespace Profiler
 			const size_t lastOpenIdx = openNodes.back();
 			nodes[lastOpenIdx].setData(pData);
 			openNodes.pop_back();
+
+			storeStats(pData, nodes[lastOpenIdx].id);
 		};
 
 	private:
-		void pushNode(size_t parent)
+		void pushNode(size_t parent, int id)
 		{
-			ScopeProfileNode newNode(parent);
+			ScopeProfileNode newNode(id, parent);
 			nodes.push_back(newNode);
+		};
+
+		void storeStats(ScopeProfileData* pData, int id)
+		{
+			auto it = stats.find(id);
+
+			if (it != stats.end())
+			{
+				ScopeStats& nodeStats = it->second;
+				nodeStats.maxElapsedTime = std::max(nodeStats.maxElapsedTime, pData->elapsedTime);
+				nodeStats.minElapsedTime = std::min(nodeStats.minElapsedTime, pData->elapsedTime);
+			}
+			else
+			{
+				stats.emplace(id, ScopeStats(pData->elapsedTime, pData->elapsedTime));
+			}
 		};
 	};
 
@@ -131,7 +173,7 @@ namespace Profiler
 #define PROFILER_MACROS_DEFINED
 
 #if defined (PROFILE)							
-	#define PROFILE_SCOPE(nameLiteral)		Profiler::ScopeTimer timer(nameLiteral)
+	#define PROFILE_SCOPE(nameLiteral)		Profiler::ScopeTimer timer(FILELINE_ID, nameLiteral)
 	#define PROFILER_INIT() 				Profiler::InitProfiler()				
 	#define PROFILER_START_FRAME() 			Profiler::OnStartFrame()
 	#define PROFILER_END_FRAME() 			Profiler::OnEndFrame()
