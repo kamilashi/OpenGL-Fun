@@ -56,7 +56,7 @@ namespace Profiler
 		double minElapsedTime;
 		double maxElapsedTime;
 		std::deque<double> window;
-		static const size_t windowSize = 120;
+		static const size_t windowSize = 5 * 60;
 
 		ScopeStats() {};
 

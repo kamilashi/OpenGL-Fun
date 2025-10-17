@@ -84,10 +84,13 @@ namespace Profiler
 	{
 		char buffer[256];
 		char indent[64];
-		int indentLen = depth * 3;
+		int labelStart = depth * 2;
+		int indentLen = labelStart + 3;
+
 		indentLen = indentLen < 60 ? indentLen : 60;
-		std::memset(indent, '_', indentLen);
-		indent[0] = '|';
+		std::memset(indent, ' ', labelStart);
+		std::memset(indent + labelStart, '_', indentLen- labelStart);
+		indent[labelStart] = '|';
 		indent[indentLen] = '\0';
 
 		double average = getMovingAverage(stats);

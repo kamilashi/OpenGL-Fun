@@ -6,3 +6,6 @@
 
 #endif //BUILDCONFIG_H
 
+
+
+//#define PREGEN_NOISE

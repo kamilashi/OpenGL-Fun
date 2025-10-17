@@ -5,12 +5,12 @@
 #include "camera.h"
 #include "scene.h"
 #include "profiler.h"
+#include "buildconfig.h"
 
 namespace Graphics
 {
 	extern Camera* pViewPortCamera = nullptr;
 	extern PerspCameraParams* pViewPortCameraParams = nullptr;
-
 
 	inline void rotateCamera(Camera* camera, float degreeInRad, float distance, glm::vec3 lookAtTarget)
 	{
@@ -69,7 +69,9 @@ namespace Graphics
 		PROFILE_SCOPE("Render");
 		//rotateCamera(&pScene->mainCamera, time, 10, pScene->lookAtTarget);
 
-		//pScene->renderPrePass(time);
+#ifdef PREGEN_NOISE
+		pScene->renderPrePass(time);
+#endif
 
 		glEnable(GL_DEPTH_TEST);
 		blitToTexture(pScene->shadowMapTexture, depthMapFBO);

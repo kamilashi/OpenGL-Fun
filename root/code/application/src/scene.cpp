@@ -6,6 +6,8 @@
 #include "scene.h"
 #include "graphics.h"
 #include "assetloader.h"
+#include "profiler.h"
+#include "buildconfig.h"
 
 void setVec3(const float source[3], glm::vec3* pDestication)
 {
@@ -26,7 +28,6 @@ void setVec2(const float source[2], glm::vec2* pDestication)
 	pDestication->x = source[0];
 	pDestication->y = source[1];
 }
-
 
 void inline updateMainLight(Scene* pScene)
 {
@@ -74,9 +75,12 @@ void inline updateTerrainShaders(Scene* pScene, const UI::SceneControlData& scen
 		terrainShader.setCustomUniformF(terrainShader.getLoc("uLacunarity"), sceneData.lacunarity);
 	};
 
+#ifdef PREGEN_NOISE
+	updateShader(pScene->noiseGenShader);
+#else
 	updateShader(pScene->terrainShader);
 	updateShader(pScene->terrainDepthShader);
-	//updateShader(pScene->noiseGenShader);
+#endif
 }
 
 void Scene::create(const ViewportParams& viewportParams)
@@ -118,11 +122,17 @@ void Scene::create(const ViewportParams& viewportParams)
 	terrainCubeModel = AssetLoader::loadModel("terraincube.obj");
 	jetModel = AssetLoader::loadModel("jet.obj");
 
+#ifdef PREGEN_NOISE
+	const char* terrainShaderVer = "terrain";
+#else
+	const char* terrainShaderVer = "terrainold";
+#endif
+
 	defaultDepthShader = Shader("default", true, { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
-	terrainDepthShader = Shader("terrainOld", "default", { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
+	terrainDepthShader = Shader(terrainShaderVer, "default", { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
 
 	defaultShader = Shader("default");
-	terrainShader = Shader("terrainOld");
+	terrainShader = Shader(terrainShaderVer);
 	unlitShader = Shader("unlit");
 	noiseGenShader = Shader("noisebake");
 
@@ -145,17 +155,22 @@ void Scene::create(const ViewportParams& viewportParams)
 	unlitShader.setMainColorUniform(lightColor);
 
 	const int shadowMapResolution = 4096;
-	const int noiseResolution = 1024;
-
-	noiseGenQuadModel = Model(Mesh::Primitive::Quad);
-	noiseMapFBO = ~0x0;
-	noiseGenTexture = Texture(noiseResolution, noiseResolution, GL_R32F, GL_RED, GL_FLOAT);
-	Graphics::bindTextureToFrameBuffer(&noiseMapFBO, noiseGenTexture.id, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0);
 
 	shadowMapTexture = Texture(shadowMapResolution, shadowMapResolution, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
 
 	terrainShader.setTextureUniform(terrainShader.getLoc("shadowMap"), shadowMapTexture.id);
 	defaultShader.setTextureUniform(defaultShader.getLoc("shadowMap"), shadowMapTexture.id);
+
+#ifdef PREGEN_NOISE
+	const int noiseResolution = 1024;
+	noiseGenQuadModel = Model(Mesh::Primitive::Quad);
+	noiseMapFBO = ~0x0;
+	noiseGenTexture = Texture(noiseResolution, noiseResolution, GL_R32F, GL_RED, GL_FLOAT);
+	Graphics::bindTextureToFrameBuffer(&noiseMapFBO, noiseGenTexture.id, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0);
+
+	terrainShader.setTextureUniform(terrainShader.getLoc("uFbmNoiseMap"), noiseGenTexture.id);
+	terrainDepthShader.setTextureUniform(terrainDepthShader.getLoc("uFbmNoiseMap"), noiseGenTexture.id);
+#endif
 }
 
 void Scene::update(const UI::SceneControlData& sceneData)
@@ -178,7 +193,6 @@ void Scene::render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const C
 
 	terrainShaderVar.setTransformUniforms(activeCam, terrainTransform);
 	terrainShaderVar.setCustomUniformF(terrainShaderVar.uniforms.timeLoc, time);
-	terrainShaderVar.setTextureUniform(terrainShaderVar.getLoc("uFbmNoiseMap"), noiseGenTexture.id);
 
 	terrainCubeModel.draw();
 
@@ -193,6 +207,7 @@ void Scene::render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const C
 
 void Scene::renderPrePass(float time)
 {
+	PROFILE_SCOPE("Noise Gen");
 	// pre-bake noise
 	Graphics::blitToTexture(noiseGenTexture, noiseMapFBO);
 
@@ -206,10 +221,14 @@ void Scene::renderPrePass(float time)
 
 void Scene::renderShadowCasterPass(float time)
 {
+	PROFILE_SCOPE("Shadow Pass");
+
 	render(&terrainDepthShader, &defaultDepthShader, mainLightCamera, time, true);
 }
 
 void Scene::renderMainPass(float time)
 {
+	PROFILE_SCOPE("Main Pass");
+
 	render(&terrainShader, &defaultShader, mainCamera, time, false);
 }
