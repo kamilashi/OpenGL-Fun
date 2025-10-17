@@ -140,6 +140,17 @@ void Shader::setCustomUniformF(uint uniformLoc, float value)
 	glUniform1f(uniformLoc, value);
 }
 
+void Shader::setTextureUniform(uint uniformLoc, uint textureId)
+{
+	glUseProgram(id);
+	glActiveTexture(GL_TEXTURE0 + textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glUniform1i(uniformLoc, textureId);
+}
+
 void Mesh::setupMesh()
 {
 	glGenVertexArrays(1, &VAO);
@@ -191,13 +202,13 @@ void Model::draw()
 	}
 }
 
-Texture::Texture(int width, int height, GLenum format, GLenum type) :
+Texture::Texture(int width, int height, GLint internalFormat, GLenum format, GLenum type) :
 	width(width),
 	height(height) 
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
 		width, height, 0, format, type, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

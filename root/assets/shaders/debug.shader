@@ -1,6 +1,5 @@
 #shader vertex
 #version 330 core
-#include noises.glsl
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
@@ -34,7 +33,6 @@ void main()
 #shader fragment
 #version 330 core
 #include helpers.glsl
-#include noises.glsl
 
 in vec2 TexCoord;
 in vec3 Normal; 
@@ -45,10 +43,10 @@ out vec4 FragColor;
 uniform vec3 uMainColor;
 uniform vec3 uMainLightColor;
 uniform vec3 uMainLightDirection;
-uniform sampler2D depthMap;
+uniform sampler2D uDebugTex;
 
 void main() 
 {
-    float depthValue = texture(depthMap, TexCoord).r;
+    float depthValue = texture(uDebugTex, TexCoord).r;
     FragColor = vec4(vec3(depthValue), 1.0);
 }

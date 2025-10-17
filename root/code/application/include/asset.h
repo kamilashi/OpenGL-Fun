@@ -80,6 +80,7 @@ public:
 	void setCustomUniformF2(uint uniformLoc, const float color[]);
 	void setCustomUniformM4(uint uniformLoc, const glm::mat4& matrix);
 	void setCustomUniformF(uint uniformLoc, float value);
+	void setTextureUniform(uint uniformLoc, uint textureId);
 };
 
 struct VertexData
@@ -171,7 +172,7 @@ public:
 	int height;
 	uint id;
 
-	Texture(int width, int height, GLenum format, GLenum type);
+	Texture(int width, int height, GLint internalFormat, GLenum format, GLenum type);
 
 	Texture() {std::memset(this, ~0x0, sizeof(*this));};
 };

@@ -11,9 +11,10 @@ public:
 	Scene() {};
 	void create(const ViewportParams& viewportParams);
 	void update(const UI::SceneControlData& sceneData);
+	void renderPrePass(float time);
 	void renderShadowCasterPass(float time);
 	void renderMainPass(float time);
-	uint getDebugTextureId() { return shadowMapTexture.id; }
+	const Texture& getDebugTexture() const { return shadowMapTexture; }
 
 	Camera mainCamera;
 	glm::vec3 lookAtTarget;
@@ -44,9 +45,15 @@ public:
 	Shader unlitShader;
 	Shader defaultDepthShader;
 	Shader terrainDepthShader;
+	Shader noiseGenShader;
 
 	// belongs in the graphics file ?
 	Texture shadowMapTexture;
+	Texture noiseGenTexture;
+
+	Model noiseGenQuadModel;
+
+	uint noiseMapFBO;
 
 private:
 	void render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, bool shadowCasterPass);

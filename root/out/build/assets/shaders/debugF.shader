@@ -56,39 +56,6 @@ vec2 getShadow(vec4 fragPosLightSpace, sampler2D shadowMap, float shadowBias)
 
     return vec2(shadow, currentDepth);
 }  
-//Unity's implementation of gradient noise, is here for testing and will be removed later.
-
-vec2 gradientNoiseDir(vec2 p)
-{
-    p = mod(p, 289.0);
-    float x = mod((34.0 * p.x + 1.0) * p.x, 289.0) + p.y;
-    x = mod((34.0 * x + 1.0) * x, 289.0);
-    x = fract(x / 41.0) * 2.0 - 1.0;
-    return normalize(vec2(x - floor(x + 0.5), abs(x) - 0.5));
-}
-
-// 2D gradient noise in ~[-1, 1]
-float gradientNoise(vec2 p)
-{
-    vec2 ip = floor(p);
-    vec2 fp = fract(p);
-
-    float d00 = dot(gradientNoiseDir(ip),                     fp);
-    float d01 = dot(gradientNoiseDir(ip + vec2(0.0, 1.0)),    fp - vec2(0.0, 1.0));
-    float d10 = dot(gradientNoiseDir(ip + vec2(1.0, 0.0)),    fp - vec2(1.0, 0.0));
-    float d11 = dot(gradientNoiseDir(ip + vec2(1.0, 1.0)),    fp - vec2(1.0, 1.0));
-
-    // quintic fade (Perlin)
-    vec2 w = fp * fp * fp * (fp * (fp * 6.0 - 15.0) + 10.0);
-
-    // bilinear interpolation with smooth weights
-    return mix( mix(d00, d01, w.y), mix(d10, d11, w.y), w.x );
-}
-
-float GradientNoise01(vec2 UV, float Scale)
-{
-    return 0.5 + 0.5 * gradientNoise(UV * Scale);
-}
 
 in vec2 TexCoord;
 in vec3 Normal; 
@@ -99,10 +66,10 @@ out vec4 FragColor;
 uniform vec3 uMainColor;
 uniform vec3 uMainLightColor;
 uniform vec3 uMainLightDirection;
-uniform sampler2D depthMap;
+uniform sampler2D uDebugTex;
 
 void main() 
 {
-    float depthValue = texture(depthMap, TexCoord).r;
+    float depthValue = texture(uDebugTex, TexCoord).r;
     FragColor = vec4(vec3(depthValue), 1.0);
 }

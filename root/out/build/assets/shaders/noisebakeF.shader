@@ -1,4 +1,5 @@
 #version 330 core
+
 //Unity's implementation of gradient noise, is here for testing and will be removed later.
 
 vec2 gradientNoiseDir(vec2 p)
@@ -80,74 +81,20 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
     return heightOffset;
 }
 
-vec2 getHeightGradient(float centerHeight, vec2 uv, float step, sampler2D fbmNoiseTex)
-{
-    float hx  = texture(fbmNoiseTex, uv + vec2(step, 0)).r;
-    float hz  = texture(fbmNoiseTex, uv + vec2(0, step)).r;
+in vec2 SampleCoord;
+in vec2 TexCoord;
 
-    vec2 gradient = getGradient(centerHeight, hx, hz, step, vec2(2.0, 2.0));
-    return gradient;
-}
+uniform float uLacunarity;
+uniform vec3 uAmplitudes;
+uniform vec3 uErosionIntensity;
 
-vec3 normalFromHeight(vec2 gradient) 
-{   
-    vec3 n = vec3(-gradient.x, 1.0, -gradient.y);
-    return normalize(n);
-}
-
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoord;
-layout (location = 2) in vec3 aNormal;
-layout (location = 3) in vec3 aTangent;
-layout (location = 4) in vec3 aBitangent;
-
-out vec2 TexCoord;
-out vec3 Normal;
-out vec3 WorldPos; 
-
-#ifndef SHADOW_DEPTH_PASS
-    out vec4 FragPosLightSpace;
-    uniform mat4 uLightSpaceMatrix;
-#endif
-
-uniform mat4 uTransform;
-uniform mat4 uView;
-uniform mat4 uProjection;
-
-uniform sampler2D uFbmNoiseMap;
-
-uniform float uTime;
+layout(location = 0) out float outNoise;
 
 void main() 
 {
-    TexCoord = aTexCoord;
-    vec3 localPos = aPos;
-    Normal = aNormal;
-    
-    //if()
-    if(aPos.y > 0.0)
-    {
-        float heightOffset = texture(uFbmNoiseMap, TexCoord).r;
-        float offsetCompensation = 1.5;
-       
-        localPos.y += heightOffset - offsetCompensation;
-        
-        if(localPos.y < -1)
-        {
-            localPos.y = aPos.y;
-        }
+    float sampleScale = 3.0;
 
-        if(dot(aNormal, vec3(0.0, 1.0, 0.0)) > 0.0)
-        {
-            vec2 gradient = getHeightGradient(heightOffset, TexCoord, 0.01, uFbmNoiseMap);
-            Normal = normalFromHeight(gradient);
-        }
-    }
+    float heightOffset = fbmHeight(SampleCoord, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity);
 
-    WorldPos = vec3(uTransform * vec4(localPos, 1.0));
-#ifndef SHADOW_DEPTH_PASS
-    FragPosLightSpace = uLightSpaceMatrix * vec4(WorldPos, 1.0);
-#endif
-    gl_Position = uProjection * uView * vec4(WorldPos, 1.0);
+    outNoise = heightOffset;
 }
-

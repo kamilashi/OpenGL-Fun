@@ -76,6 +76,7 @@ void inline updateTerrainShaders(Scene* pScene, const UI::SceneControlData& scen
 
 	updateShader(pScene->terrainShader);
 	updateShader(pScene->terrainDepthShader);
+	//updateShader(pScene->noiseGenShader);
 }
 
 void Scene::create(const ViewportParams& viewportParams)
@@ -118,11 +119,12 @@ void Scene::create(const ViewportParams& viewportParams)
 	jetModel = AssetLoader::loadModel("jet.obj");
 
 	defaultDepthShader = Shader("default", true, { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
-	terrainDepthShader = Shader("terrain", "default", { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
+	terrainDepthShader = Shader("terrainOld", "default", { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
 
 	defaultShader = Shader("default");
-	terrainShader = Shader("terrain");
+	terrainShader = Shader("terrainOld");
 	unlitShader = Shader("unlit");
+	noiseGenShader = Shader("noisebake");
 
 	glUseProgram(defaultShader.id);
 	defaultShader.setMainLightUniforms(lightColor, lightDirection);
@@ -142,7 +144,18 @@ void Scene::create(const ViewportParams& viewportParams)
 	glUseProgram(unlitShader.id);
 	unlitShader.setMainColorUniform(lightColor);
 
-	shadowMapTexture = Texture(4096, 4096, GL_DEPTH_COMPONENT, GL_FLOAT);
+	const int shadowMapResolution = 4096;
+	const int noiseResolution = 1024;
+
+	noiseGenQuadModel = Model(Mesh::Primitive::Quad);
+	noiseMapFBO = ~0x0;
+	noiseGenTexture = Texture(noiseResolution, noiseResolution, GL_R32F, GL_RED, GL_FLOAT);
+	Graphics::bindTextureToFrameBuffer(&noiseMapFBO, noiseGenTexture.id, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0);
+
+	shadowMapTexture = Texture(shadowMapResolution, shadowMapResolution, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+
+	terrainShader.setTextureUniform(terrainShader.getLoc("shadowMap"), shadowMapTexture.id);
+	defaultShader.setTextureUniform(defaultShader.getLoc("shadowMap"), shadowMapTexture.id);
 }
 
 void Scene::update(const UI::SceneControlData& sceneData)
@@ -163,30 +176,32 @@ void Scene::render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const C
 
 	glUseProgram(terrainShaderVar.id);
 
-	if (!shadowCasterPass)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, shadowMapTexture.id);
-	}
-
 	terrainShaderVar.setTransformUniforms(activeCam, terrainTransform);
 	terrainShaderVar.setCustomUniformF(terrainShaderVar.uniforms.timeLoc, time);
+	terrainShaderVar.setTextureUniform(terrainShaderVar.getLoc("uFbmNoiseMap"), noiseGenTexture.id);
 
 	terrainCubeModel.draw();
 
 	glUseProgram(defaultShaderVar.id);
-
-	if (!shadowCasterPass)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, shadowMapTexture.id);
-	}
 
 	defaultShaderVar.setTransformUniforms(activeCam, jetTransform);
 	defaultShaderVar.setMainColorUniform(jetColor);
 	defaultShaderVar.setCustomUniformF(defaultShaderVar.uniforms.timeLoc, time);
 
 	jetModel.draw();
+}
+
+void Scene::renderPrePass(float time)
+{
+	// pre-bake noise
+	Graphics::blitToTexture(noiseGenTexture, noiseMapFBO);
+
+	glDisable(GL_DEPTH_TEST);
+
+	glUseProgram(noiseGenShader.id);
+	noiseGenShader.setCustomUniformF(noiseGenShader.uniforms.timeLoc, time);
+	noiseGenQuadModel.draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Scene::renderShadowCasterPass(float time)

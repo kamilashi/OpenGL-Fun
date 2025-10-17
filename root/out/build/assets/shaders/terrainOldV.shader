@@ -80,10 +80,10 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
     return heightOffset;
 }
 
-vec2 getHeightGradient(float centerHeight, vec2 uv, float step, sampler2D fbmNoiseTex)
+vec2 getHeightGradient(float centerHeight, vec2 uv, float step, vec3 intensity, vec3 erosionIntensity, float baseScale, float lacunarity)
 {
-    float hx  = texture(fbmNoiseTex, uv + vec2(step, 0)).r;
-    float hz  = texture(fbmNoiseTex, uv + vec2(0, step)).r;
+    float hx  = fbmHeight(uv + vec2(step, 0), intensity, erosionIntensity, baseScale, lacunarity);
+    float hz  = fbmHeight(uv + vec2(0, step), intensity, erosionIntensity, baseScale, lacunarity);
 
     vec2 gradient = getGradient(centerHeight, hx, hz, step, vec2(2.0, 2.0));
     return gradient;
@@ -114,7 +114,10 @@ uniform mat4 uTransform;
 uniform mat4 uView;
 uniform mat4 uProjection;
 
-uniform sampler2D uFbmNoiseMap;
+uniform float uLacunarity;
+uniform vec3 uAmplitudes;
+uniform vec3 uErosionIntensity;
+uniform vec2 uSampleOffset;
 
 uniform float uTime;
 
@@ -127,7 +130,12 @@ void main()
     //if()
     if(aPos.y > 0.0)
     {
-        float heightOffset = texture(uFbmNoiseMap, TexCoord).r;
+        float scrollSpeed = 0.1;
+        vec2 sampleCoords = TexCoord + vec2(uTime * scrollSpeed, uTime * -scrollSpeed) + uSampleOffset;
+
+        float sampleScale = 3.0;
+
+        float heightOffset = fbmHeight(sampleCoords, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity);
         float offsetCompensation = 1.5;
        
         localPos.y += heightOffset - offsetCompensation;
@@ -139,7 +147,7 @@ void main()
 
         if(dot(aNormal, vec3(0.0, 1.0, 0.0)) > 0.0)
         {
-            vec2 gradient = getHeightGradient(heightOffset, TexCoord, 0.01, uFbmNoiseMap);
+            vec2 gradient = getHeightGradient(heightOffset, sampleCoords, 0.01, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity);
             Normal = normalFromHeight(gradient);
         }
     }

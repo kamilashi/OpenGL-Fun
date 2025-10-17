@@ -26,13 +26,14 @@ namespace Graphics
 	static Model debugQuadModel;
 	static Shader debugShader;
 
-	void bindDepthTexture(uint textureId, uint frameBufferId)
+	void bindTextureToFrameBuffer(uint* pFrameBufferId, uint textureId, GLenum textarget, GLenum drawBuf, GLenum readBuf)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureId, 0);
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glGenFramebuffers(1, pFrameBufferId);
+		glBindFramebuffer(GL_FRAMEBUFFER, *pFrameBufferId);
+		glDrawBuffer(drawBuf);
+		glReadBuffer(readBuf);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, textarget, GL_TEXTURE_2D, textureId, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // unbind
 	}
 
 	void blitToTexture(Texture texture, uint frameBufferId)
@@ -60,9 +61,7 @@ namespace Graphics
 		glUseProgram(debugShader.id);
 		debugShader.setTransformUniforms(pScene->mainCamera, debugQuadTransform);
 
-		glGenFramebuffers(1, &depthMapFBO);
-
-		bindDepthTexture(pScene->shadowMapTexture.id, depthMapFBO);
+		bindTextureToFrameBuffer(&depthMapFBO, pScene->shadowMapTexture.id, GL_DEPTH_ATTACHMENT, GL_NONE, GL_NONE);
 	}
 
 	void render(Scene* pScene, const ViewportParams& viewportParams, const bool showDebugQuad, const float time)
@@ -70,6 +69,9 @@ namespace Graphics
 		PROFILE_SCOPE("Render");
 		//rotateCamera(&pScene->mainCamera, time, 10, pScene->lookAtTarget);
 
+		//pScene->renderPrePass(time);
+
+		glEnable(GL_DEPTH_TEST);
 		blitToTexture(pScene->shadowMapTexture, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -90,12 +92,8 @@ namespace Graphics
 
 		if (showDebugQuad)
 		{
-			glUseProgram(debugShader.id);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, pScene->getDebugTextureId());
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			debugShader.setTextureUniform(debugShader.getLoc("uDebugTex"), pScene->getDebugTexture().id);
+
 			debugQuadModel.draw();
 		}
 	}

@@ -12,6 +12,9 @@ namespace Graphics
 	extern Camera* pViewPortCamera;
 	extern PerspCameraParams* pViewPortCameraParams;
 
+	void blitToTexture(Texture texture, uint frameBufferId);
+	void bindTextureToFrameBuffer(uint* pFrameBufferId, uint textureId, GLenum textarget, GLenum drawBuf, GLenum readBuf);
+
 	void prepare(Scene* pScene);
 
 	void render(Scene* pScene, const ViewportParams& viewportParams, const bool showDebugQuad,const float time);
