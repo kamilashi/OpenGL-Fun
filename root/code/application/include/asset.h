@@ -75,9 +75,10 @@ public:
 	void setMainLightUniforms(const glm::vec3& lightColor, const glm::vec3& lightDir);
 
 	void setMainColorUniform(const glm::vec3& color);
-	void setCustomUniformF3(uint uniformLoc, const glm::vec3& color);
-	void setCustomUniformF3(uint uniformLoc, const float color[]);
-	void setCustomUniformF2(uint uniformLoc, const float color[]);
+	void setCustomUniformF3(uint uniformLoc, const glm::vec3& vect);
+	void setCustomUniformF3(uint uniformLoc, const float vect[]);
+	void setCustomUniformF2(uint uniformLoc, const float vect[]);
+	void setCustomUniformI2(uint uniformLoc, const int vect[]);
 	void setCustomUniformM4(uint uniformLoc, const glm::mat4& matrix);
 	void setCustomUniformF(uint uniformLoc, float value);
 	void setTextureUniform(uint uniformLoc, uint textureId);
@@ -172,7 +173,7 @@ public:
 	int height;
 	uint id;
 
-	Texture(int width, int height, GLint internalFormat, GLenum format, GLenum type);
+	Texture(int width, int height, GLint internalFormat, GLenum format, GLenum type, GLint wrapMode = GL_REPEAT);
 
 	Texture() {std::memset(this, ~0x0, sizeof(*this));};
 };

@@ -5,6 +5,6 @@
 
 namespace Simulation
 {
-	void run(Scene* pScene, float time);
+	void run(Scene* pScene, const UI::SceneControlData& controls, float time);
 }
 #endif

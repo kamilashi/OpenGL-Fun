@@ -20,6 +20,9 @@ namespace UI
 		float jetPosition[3];
 		bool showShadowDepthMap;
 		int currentPresetIdx;
+		int currentDebugTextureIdx = 0;
+		bool orbitScene = false;
+		float sceneOrbitSpeed = 0.140;
 
 		void fillPreset0()
 		{
@@ -88,8 +91,13 @@ namespace UI
 		}
 	};
 
+	struct RuntimeControlData
+	{
+		bool isPaused = false;
+	};
 
-	extern void showUiWidget(SceneControlData* pSceneControlData);
+	extern void showSceneUiWidget(SceneControlData* pSceneControlData);
+	extern void showRuntimeUiWidget(RuntimeControlData* pViewportControlData);
 }
 
 #endif

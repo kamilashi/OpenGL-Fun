@@ -14,7 +14,7 @@ public:
 	void renderPrePass(float time);
 	void renderShadowCasterPass(float time);
 	void renderMainPass(float time);
-	const Texture& getDebugTexture() const { return shadowMapTexture; }
+	const Texture& getDebugTexture() const { return *debugTextures[debugTextIdx]; }
 
 	Camera mainCamera;
 	glm::vec3 lookAtTarget;
@@ -50,6 +50,9 @@ public:
 	// belongs in the graphics file ?
 	Texture shadowMapTexture;
 	Texture noiseGenTexture;
+
+	Texture* debugTextures[2];
+	int debugTextIdx;
 
 	Model noiseGenQuadModel;
 

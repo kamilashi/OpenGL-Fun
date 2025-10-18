@@ -12,14 +12,6 @@ namespace Graphics
 	extern Camera* pViewPortCamera = nullptr;
 	extern PerspCameraParams* pViewPortCameraParams = nullptr;
 
-	inline void rotateCamera(Camera* camera, float degreeInRad, float distance, glm::vec3 lookAtTarget)
-	{
-		float camX = sin(degreeInRad) * distance;
-		float camZ = cos(degreeInRad) * distance;
-
-		camera->viewMatrix = glm::lookAt(glm::vec3(camX, camera->position.y, camZ), lookAtTarget, glm::vec3(0.0, 1.0, 0.0));
-	}
-
 	static uint depthMapFBO = ~0x0;
 
 	static glm::mat4 debugQuadTransform;
@@ -67,7 +59,6 @@ namespace Graphics
 	void render(Scene* pScene, const ViewportParams& viewportParams, const bool showDebugQuad, const float time)
 	{
 		PROFILE_SCOPE("Render");
-		//rotateCamera(&pScene->mainCamera, time, 10, pScene->lookAtTarget);
 
 #ifdef PREGEN_NOISE
 		pScene->renderPrePass(time);
@@ -85,7 +76,7 @@ namespace Graphics
 		glViewport(0, 0, viewportParams.width, viewportParams.height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0 + pScene->shadowMapTexture.id);
 		glBindTexture(GL_TEXTURE_2D, pScene->shadowMapTexture.id);
 
 		glEnable(GL_CULL_FACE);

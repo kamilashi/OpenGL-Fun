@@ -2,12 +2,13 @@
 #version 330 core
 #include noises.glsl
 
-vec2 getHeightGradient(float centerHeight, vec2 uv, float step, sampler2D fbmNoiseTex)
+vec2 getHeightGradient(float centerHeight, vec2 uv, float step, float worldStepScale, sampler2D fbmNoiseTex)
 {
     float hx  = texture(fbmNoiseTex, uv + vec2(step, 0)).r;
     float hz  = texture(fbmNoiseTex, uv + vec2(0, step)).r;
 
-    vec2 gradient = getGradient(centerHeight, hx, hz, step, vec2(2.0, 2.0));
+    vec2 worldScale = vec2(worldStepScale, worldStepScale); //vec2(1.0, 1.0);
+    vec2 gradient = getGradient(centerHeight, hx, hz, step, worldScale);
     return gradient;
 }
 
@@ -15,6 +16,26 @@ vec3 normalFromHeight(vec2 gradient)
 {   
     vec3 n = vec3(-gradient.x, 1.0, -gradient.y);
     return normalize(n);
+}
+
+vec3 normalFromGradient4D(vec2 uv, float step, float worldStep, sampler2D fbmNoiseTex) 
+{   
+    float globalAmp = 1;
+    vec2 texel = vec2(step); 
+
+
+    float hL = textureLod(fbmNoiseTex, uv + vec2(-texel.x, 0.0), 0.0).r;
+    float hR = textureLod(fbmNoiseTex, uv + vec2( texel.x, 0.0), 0.0).r;
+    float hD = textureLod(fbmNoiseTex, uv + vec2(0.0, -texel.y), 0.0).r;
+    float hU = textureLod(fbmNoiseTex, uv + vec2(0.0,  texel.y), 0.0).r;
+
+    float dHx = (hR - hL) * 0.5;
+    float dHy = (hU - hD) * 0.5;
+
+    vec3 dPosdU = vec3(worldStep,  dHx * globalAmp, 0.0);
+    vec3 dPosdV = vec3(0.0,        dHy * globalAmp, worldStep);
+
+    return normalize(cross(dPosdV, dPosdU));
 }
 
 layout (location = 0) in vec3 aPos;
@@ -26,6 +47,7 @@ layout (location = 4) in vec3 aBitangent;
 out vec2 TexCoord;
 out vec3 Normal;
 out vec3 WorldPos; 
+out vec2 Grad; 
 
 #ifndef SHADOW_DEPTH_PASS
     out vec4 FragPosLightSpace;
@@ -37,6 +59,7 @@ uniform mat4 uView;
 uniform mat4 uProjection;
 
 uniform sampler2D uFbmNoiseMap;
+uniform ivec2 uTextureSize;
 
 uniform float uTime;
 
@@ -46,9 +69,9 @@ void main()
     vec3 localPos = aPos;
     Normal = aNormal;
     
-    //if()
     if(aPos.y > 0.0)
     {
+        //TexCoord.x += 0.001;
         float heightOffset = texture(uFbmNoiseMap, TexCoord).r;
         float offsetCompensation = 1.5;
        
@@ -61,8 +84,13 @@ void main()
 
         if(dot(aNormal, vec3(0.0, 1.0, 0.0)) > 0.0)
         {
-            vec2 gradient = getHeightGradient(heightOffset, TexCoord, 0.01, uFbmNoiseMap);
+            float step = 1.0 / 257.0;
+            float worldStepScale = 1.0; //0.007812; // must correspond to the one use in noisebake pass!
+
+            vec2 gradient = getHeightGradient(heightOffset, TexCoord, step, worldStepScale, uFbmNoiseMap);
             Normal = normalFromHeight(gradient);
+            //Normal = normalFromGradient4D(TexCoord, step, worldStepScale, uFbmNoiseMap);
+            //Grad = gradient;
         }
     }
 
@@ -81,6 +109,7 @@ void main()
 in vec2 TexCoord;
 in vec3 Normal; 
 in vec3 WorldPos; 
+in vec2 Grad; 
 
 #ifndef SHADOW_DEPTH_PASS
     in vec4 FragPosLightSpace;
@@ -101,5 +130,6 @@ void main()
 #ifndef SHADOW_DEPTH_PASS
     vec3 norm = Normal;
     #include dither.glsl
+    //FragColor = vec4(Grad, 0,   1);
 #endif
 }

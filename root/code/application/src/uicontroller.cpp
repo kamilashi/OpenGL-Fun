@@ -4,7 +4,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-extern void UI::showUiWidget(SceneControlData* pSceneControlData)
+extern void UI::showSceneUiWidget(SceneControlData* pSceneControlData)
 {
 	ImGui::Begin("Scene Controller");
 
@@ -29,9 +29,22 @@ extern void UI::showUiWidget(SceneControlData* pSceneControlData)
 		ImGui::InputFloat3("Root Position", pSceneControlData->jetPosition);
 	}
 
+	if (ImGui::CollapsingHeader("Simulation"))
+	{
+		ImGui::Checkbox("Orbit Scene", &pSceneControlData->orbitScene);
+		ImGui::InputFloat("Orbit Speed", &pSceneControlData->sceneOrbitSpeed, 0.01f, 2.0f, "%.3f");
+	}
+
 	if (ImGui::CollapsingHeader("Debug"))
 	{
-		ImGui::Checkbox("Show Shadow Depth Map", &pSceneControlData->showShadowDepthMap);
+		ImGui::Checkbox("Show Debug Map", &pSceneControlData->showShadowDepthMap);
+
+		const char* debugTexNames[] =
+		{
+			"Shadow Map", "Noise Map"
+		};
+
+		ImGui::Combo("Debug Texture", &pSceneControlData->currentDebugTextureIdx, debugTexNames, IM_ARRAYSIZE(debugTexNames));
 	}
 
 	ImGui::Separator();
@@ -54,6 +67,16 @@ extern void UI::showUiWidget(SceneControlData* pSceneControlData)
 	{
 		pSceneControlData->fillPreset1();
 	}*/
+
+	ImGui::End();
+}
+
+
+extern void UI::showRuntimeUiWidget(RuntimeControlData* pViewportControlData)
+{
+	ImGui::Begin("Runtime Controller");
+
+	ImGui::Checkbox("Pause", &pViewportControlData->isPaused);
 
 	ImGui::End();
 }

@@ -162,15 +162,26 @@ void Scene::create(const ViewportParams& viewportParams)
 	defaultShader.setTextureUniform(defaultShader.getLoc("shadowMap"), shadowMapTexture.id);
 
 #ifdef PREGEN_NOISE
-	const int noiseResolution = 1024;
+	const int noiseResolution = 257;
 	noiseGenQuadModel = Model(Mesh::Primitive::Quad);
 	noiseMapFBO = ~0x0;
-	noiseGenTexture = Texture(noiseResolution, noiseResolution, GL_R32F, GL_RED, GL_FLOAT);
+	noiseGenTexture = Texture(noiseResolution, noiseResolution, GL_R32F, GL_RED, GL_FLOAT, GL_CLAMP_TO_EDGE);
 	Graphics::bindTextureToFrameBuffer(&noiseMapFBO, noiseGenTexture.id, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0);
 
+	const int texSize[2] = { noiseGenTexture.width, noiseGenTexture.height };
 	terrainShader.setTextureUniform(terrainShader.getLoc("uFbmNoiseMap"), noiseGenTexture.id);
+	terrainShader.setCustomUniformI2(terrainShader.getLoc("uTextureSize"), texSize);
+
 	terrainDepthShader.setTextureUniform(terrainDepthShader.getLoc("uFbmNoiseMap"), noiseGenTexture.id);
+	terrainDepthShader.setCustomUniformI2(terrainDepthShader.getLoc("uTextureSize"), texSize);
+
+	glUseProgram(noiseGenShader.id);
+	noiseGenShader.setCustomUniformI2(noiseGenShader.getLoc("uTextureSize"), texSize);
 #endif
+
+	debugTextures[0] = &shadowMapTexture;
+	debugTextures[1] = &noiseGenTexture;
+	debugTextIdx = 0;
 }
 
 void Scene::update(const UI::SceneControlData& sceneData)
@@ -182,6 +193,8 @@ void Scene::update(const UI::SceneControlData& sceneData)
 	updateJet(this, sceneData);
 
 	updateTerrainShaders(this, sceneData);
+
+	debugTextIdx = sceneData.currentDebugTextureIdx;
 }
 
 void Scene::render(Shader* pTerrainShaderVar, Shader* pDefaultShaderVar, const Camera& activeCam, float time, bool shadowCasterPass = false)

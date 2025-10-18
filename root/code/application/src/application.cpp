@@ -90,6 +90,7 @@ int Application::runWindow()
 	}
 
 	UI::SceneControlData sceneControlData;
+	UI::RuntimeControlData runtimeControl;
 	sceneControlData.fillPreset0();
 
 	Scene scene = Scene();
@@ -98,11 +99,11 @@ int Application::runWindow()
 	Graphics::prepare(&scene);
 
 	glfwSetFramebufferSizeCallback(window, onWindowResize);
+	float timeElapsed = 0.0;
+	float timeLastFrame = 0.0;
 
 	while (!glfwWindowShouldClose(window))
 	{
-		float totalTime = static_cast<float>(glfwGetTime());
-
 		glfwPollEvents();
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -111,14 +112,25 @@ int Application::runWindow()
 
 		PROFILER_START_FRAME();
 
-		UI::showUiWidget(&sceneControlData);
-
 		{
 		PROFILE_SCOPE("Frame");
+
+		float timeNow = static_cast<float>(glfwGetTime());
+		if (!runtimeControl.isPaused)
+		{
+			timeElapsed += timeNow - timeLastFrame;
+		}
+
+
+		UI::showSceneUiWidget(&sceneControlData);
+		UI::showRuntimeUiWidget(&runtimeControl);
+
 		scene.update(sceneControlData);
 
-		Simulation::run(&scene, totalTime);
-		Graphics::render(&scene, viewportParams, sceneControlData.showShadowDepthMap, totalTime);
+		Simulation::run(&scene, sceneControlData, timeElapsed);
+		Graphics::render(&scene, viewportParams, sceneControlData.showShadowDepthMap, timeElapsed);
+
+		timeLastFrame = timeNow;
 		}
 
 		PROFILER_END_FRAME();

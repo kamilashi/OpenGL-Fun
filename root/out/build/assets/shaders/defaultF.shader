@@ -90,7 +90,6 @@ float GradientNoise01(vec2 UV, float Scale)
     return 0.5 + 0.5 * gradientNoise(UV * Scale);
 }
 
-
 float erode(float height, vec2 grad, float erosionStrength)
 {
     float erodedHeight = height / (1 + length(grad) * erosionStrength);
@@ -109,28 +108,29 @@ vec2 getGradient(float fc, float fx, float fz, float step, vec2 worldScale)
     return gradient;
 }
 
-vec2 getNoiseGradient(float centerHeight, vec2 uv, float step, float intensity, float baseScale)
+vec2 getNoiseGradient(float centerHeight, vec2 uv, float step, float intensity, float baseScale, float worldStepScale)
 {
     float hx  = GradientNoise01(uv + vec2(step, 0), baseScale) * intensity;
     float hz  = GradientNoise01(uv + vec2(0, step), baseScale) * intensity;
 
-    vec2 gradient = getGradient(centerHeight, hx, hz, step, vec2(2.0, 2.0));
+    vec2 gradient = getGradient(centerHeight, hx, hz, step, vec2(worldStepScale, worldStepScale));
     return gradient;
 }
 
-float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float baseScale, float lacunarity)
-{
+float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float baseScale, float lacunarity, float step, float worldStepScale)
+{   
+    //float step = 1.0 / 267; //0.1;
     float sampleScale = baseScale;
     float height1 = GradientNoise01(sampleCoords, sampleScale) * intensity.x;
-    height1 = erode(height1, getNoiseGradient(height1, sampleCoords, 0.1, intensity.x, sampleScale), erosionIntensity.x);
+    height1 = erode(height1, getNoiseGradient(height1, sampleCoords, step, intensity.x, sampleScale, worldStepScale), erosionIntensity.x);
     
     sampleScale *= lacunarity;
     float height2 = GradientNoise01(sampleCoords, sampleScale) * intensity.y;
-    height2 = erode(height2, getNoiseGradient(height2, sampleCoords, 0.1, intensity.y, sampleScale), erosionIntensity.y);
+    height2 = erode(height2, getNoiseGradient(height2, sampleCoords, step, intensity.y, sampleScale, worldStepScale), erosionIntensity.y);
 
     sampleScale *= lacunarity;
     float height3 = GradientNoise01(sampleCoords, sampleScale) * intensity.z;
-    height3 = erode(height3, getNoiseGradient(height3, sampleCoords, 0.1, intensity.z, sampleScale), erosionIntensity.z);
+    height3 = erode(height3, getNoiseGradient(height3, sampleCoords, step, intensity.z, sampleScale, worldStepScale), erosionIntensity.z);
 
     float heightOffset = height1 + height2 + height3;
 

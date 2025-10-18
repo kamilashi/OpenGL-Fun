@@ -115,19 +115,24 @@ void Shader::setMainColorUniform(const glm::vec3& color)
 	glUniform3f(uniforms.mainColorLoc, color.x, color.y, color.z);
 }
 
-void Shader::setCustomUniformF3(uint uniformLoc, const glm::vec3& color)
+void Shader::setCustomUniformF3(uint uniformLoc, const glm::vec3& vect)
 {
-	glUniform3f(uniformLoc, color.x, color.y, color.z);
+	glUniform3f(uniformLoc, vect.x, vect.y, vect.z);
 }
 
-void Shader::setCustomUniformF3(uint uniformLoc, const float color[])
+void Shader::setCustomUniformF3(uint uniformLoc, const float vect[])
 {
-	glUniform3f(uniformLoc, color[0], color[1], color[2]);
+	glUniform3f(uniformLoc, vect[0], vect[1], vect[2]);
 }
 
-void Shader::setCustomUniformF2(uint uniformLoc, const float color[])
+void Shader::setCustomUniformF2(uint uniformLoc, const float vect[])
 {
-	glUniform2f(uniformLoc, color[0], color[1]);
+	glUniform2f(uniformLoc, vect[0], vect[1]);
+}
+
+void Shader::setCustomUniformI2(uint uniformLoc, const int vect[])
+{
+	glUniform2i(uniformLoc, vect[0], vect[1]);
 }
 
 void Shader::setCustomUniformM4(uint uniformLoc, const glm::mat4& matrix)
@@ -202,7 +207,7 @@ void Model::draw()
 	}
 }
 
-Texture::Texture(int width, int height, GLint internalFormat, GLenum format, GLenum type) :
+Texture::Texture(int width, int height, GLint internalFormat, GLenum format, GLenum type, GLint wrapMode) :
 	width(width),
 	height(height) 
 {
@@ -212,6 +217,6 @@ Texture::Texture(int width, int height, GLint internalFormat, GLenum format, GLe
 		width, height, 0, format, type, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
 }
