@@ -41,9 +41,11 @@ namespace Profiler
 		double startTime;
 		double elapsedTime;
 
-		ScopeProfileData() {
-			std::memset(this, 0, sizeof(*this));
-		};
+		ScopeProfileData() : 
+			name (""),
+			startTime(0.0),
+			elapsedTime(0.0)
+		{};
 
 		ScopeProfileData(const char* n, double startT, double elapsedT) : 
 			name(n),
@@ -56,18 +58,42 @@ namespace Profiler
 	public:
 		double minElapsedTime;
 		double maxElapsedTime;
-		std::deque<double> window;
-		static const size_t windowSize = 5 * 60;
+		static const size_t movingAverageWindowSize = 5 * 60;
 
 		ScopeStats() :
 			minElapsedTime(FLT_MAX),
 			maxElapsedTime(0.0f),
-			window(windowSize, 0.0) {};
+			m_movingAveHeadIdx(0),
+			m_movingAveWindow{}
+		{};
 
-		ScopeStats(double minTime, double maxTime) noexcept :
+		ScopeStats(double minTime, double maxTime) :
 			minElapsedTime(minTime),
 			maxElapsedTime(maxTime), 
-			window(windowSize, 0.0) {};
+			m_movingAveHeadIdx(0),
+			m_movingAveWindow{}
+		{};
+
+		void pushElapsedTime(double time)
+		{
+			m_movingAveWindow[m_movingAveHeadIdx] = time;
+			m_movingAveHeadIdx = m_movingAveHeadIdx == movingAverageWindowSize - 1 ? 0 : m_movingAveHeadIdx + 1;
+		}
+
+		double getMovingAverage() const
+		{
+			double ave = 0;
+			for (int i = 0; i < movingAverageWindowSize; i++)
+			{
+				ave += m_movingAveWindow[i];
+			}
+			ave /= movingAverageWindowSize;
+			return ave;
+		}
+
+	private:
+		double m_movingAveWindow[movingAverageWindowSize];
+		size_t m_movingAveHeadIdx;
 	};
 
 	struct ScopeProfileNode
@@ -77,20 +103,26 @@ namespace Profiler
 
 		int id;
 
-		size_t parentIdx = ~0u;
-		size_t firstChildIdx = ~0u;
-		size_t lastChildIdx = ~0u;
-		size_t nextSiblingIdx = ~0u;
+		size_t parentIdx;
+		size_t firstChildIdx;
+		size_t lastChildIdx;
+		size_t nextSiblingIdx;
 
-		ScopeProfileNode()
-		{
-			std::memset(this, ~0x0, sizeof(*this));
-		};
+		ScopeProfileNode() : 
+			id(-1),
+			parentIdx(~0u),
+			firstChildIdx(~0u),
+			lastChildIdx(~0u),
+			nextSiblingIdx(~0u)
+		{};
 
 		ScopeProfileNode(int id, size_t parent) : 
 			id(id), 
-			parentIdx(parent) {};
-		
+			parentIdx(parent),
+			firstChildIdx(~0u),
+			lastChildIdx(~0u),
+			nextSiblingIdx(~0u)
+		{};
 
 		void setData(ScopeProfileData* pData)
 		{
@@ -101,11 +133,6 @@ namespace Profiler
 	struct ScopeProfileTree
 	{
 	public:
-		enum
-		{
-			WindowSize = 60
-		};
-
 		const size_t startIdx = 1;
 
 		std::vector<ScopeProfileNode> nodes;
@@ -138,7 +165,7 @@ namespace Profiler
 				parentNode.lastChildIdx = thisIdx;
 			}
 
-			openNodes.push_back(thisIdx);
+			openNodes.emplace_back(thisIdx);
 		};
 		
 		void onNodeClose(ScopeProfileData* pData)
@@ -166,8 +193,7 @@ namespace Profiler
 				ScopeStats& nodeStats = it->second;
 				nodeStats.maxElapsedTime = std::max(nodeStats.maxElapsedTime, pData->elapsedTime);
 				nodeStats.minElapsedTime = std::min(nodeStats.minElapsedTime, pData->elapsedTime);
-				nodeStats.window.pop_back();
-				nodeStats.window.emplace_front(pData->elapsedTime);
+				nodeStats.pushElapsedTime(pData->elapsedTime);
 			}
 			else
 			{
