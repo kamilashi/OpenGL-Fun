@@ -111,7 +111,7 @@ public:
 
 	// mesh data
 	std::vector<VertexData>       vertices;
-	std::vector<uint>						indices;
+	std::vector<uint>			  indices;
 
 	uint  VAO, VBO, EBO;
 
@@ -120,22 +120,28 @@ public:
 		setupMesh();
 	};
 
-	Mesh() // quad
+	Mesh(Primitive primitive) // quad. #TODO: make this NOT the default constructor
 	{
-		vertices =
-		{// positions											// uv					// normals
-		VertexData(glm::vec3(1.f,  1.f, 0.f),         glm::vec2(1.f, 1.f),    glm::vec3(0.0f,  0.0f, 1.0f)),  // ( 1, 1, 0)
-		VertexData(glm::vec3(1.f,  -1.f, 0.f),        glm::vec2(1.f, 0.f),    glm::vec3(0.0f,  0.0f, 1.0)),  // ( 1,-1, 0)
-		VertexData(glm::vec3(-1.f, -1.f, 0.f),        glm::vec2(0.f, 0.f),	glm::vec3(0.0f,  0.0f, 1.0)),  // (-1,-1, 0)
-		VertexData(glm::vec3(-1.f,  1.f, 0.f),        glm::vec2(0.f, 1.f),    glm::vec3(0.0f,  0.0f, 1.0)),  // (-1, 1, 0)
-		};
+		switch (primitive)
+		{
+			case Quad:
+			{
+				vertices =
+				{// positions											// uv					// normals
+				VertexData(glm::vec3(1.f,  1.f, 0.f),         glm::vec2(1.f, 1.f),    glm::vec3(0.0f,  0.0f, 1.0f)),  // ( 1, 1, 0)
+				VertexData(glm::vec3(1.f,  -1.f, 0.f),        glm::vec2(1.f, 0.f),    glm::vec3(0.0f,  0.0f, 1.0)),  // ( 1,-1, 0)
+				VertexData(glm::vec3(-1.f, -1.f, 0.f),        glm::vec2(0.f, 0.f),	  glm::vec3(0.0f,  0.0f, 1.0)),  // (-1,-1, 0)
+				VertexData(glm::vec3(-1.f,  1.f, 0.f),        glm::vec2(0.f, 1.f),    glm::vec3(0.0f,  0.0f, 1.0)),  // (-1, 1, 0)
+				};
 
-		indices = {
-			0, 3, 2,
-			0, 2, 1
-		};
+				indices = {
+					0, 3, 2,
+					0, 2, 1
+				};
 
-		setupMesh();
+				setupMesh();
+			}
+		}
 	}
 
 	void draw();
@@ -159,7 +165,7 @@ public:
 	{
 		if (primitive == Mesh::Primitive::Quad)
 		{
-			meshes.push_back(Mesh());
+			meshes.emplace_back(primitive);
 		}
 	}
 

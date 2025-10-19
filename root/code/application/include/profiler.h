@@ -6,6 +6,7 @@
 #include <chrono>
 #include <algorithm> 
 #include <deque>
+#include <iostream>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -58,9 +59,12 @@ namespace Profiler
 		std::deque<double> window;
 		static const size_t windowSize = 5 * 60;
 
-		ScopeStats() {};
+		ScopeStats() :
+			minElapsedTime(FLT_MAX),
+			maxElapsedTime(0.0f),
+			window(windowSize, 0.0) {};
 
-		ScopeStats(double minTime, double maxTime) :
+		ScopeStats(double minTime, double maxTime) noexcept :
 			minElapsedTime(minTime),
 			maxElapsedTime(maxTime), 
 			window(windowSize, 0.0) {};
@@ -83,14 +87,17 @@ namespace Profiler
 			std::memset(this, ~0x0, sizeof(*this));
 		};
 
-		ScopeProfileNode(int id, size_t parent) : id(id), parentIdx(parent) {};
+		ScopeProfileNode(int id, size_t parent) : 
+			id(id), 
+			parentIdx(parent) {};
+		
 
 		void setData(ScopeProfileData* pData)
 		{
 			std::memcpy(&(this->data), pData, sizeof(ScopeProfileData));
 		};
 	};
-
+	 
 	struct ScopeProfileTree
 	{
 	public:
@@ -112,7 +119,7 @@ namespace Profiler
 			openNodes.clear();
 
 			pushNode(~0u, ~0u); // root
-			openNodes.push_back(0);
+			openNodes.emplace_back(0);
 		}
 
 		void onNodeOpen(int id)
@@ -147,8 +154,7 @@ namespace Profiler
 	private:
 		void pushNode(size_t parent, int id)
 		{
-			ScopeProfileNode newNode(id, parent);
-			nodes.push_back(newNode);
+			nodes.emplace_back(id, parent);
 		};
 
 		void storeStats(ScopeProfileData* pData, int id)
@@ -160,12 +166,12 @@ namespace Profiler
 				ScopeStats& nodeStats = it->second;
 				nodeStats.maxElapsedTime = std::max(nodeStats.maxElapsedTime, pData->elapsedTime);
 				nodeStats.minElapsedTime = std::min(nodeStats.minElapsedTime, pData->elapsedTime);
-				nodeStats.window.push_front(pData->elapsedTime);
-				nodeStats.window.pop_back();            
+				nodeStats.window.pop_back();
+				nodeStats.window.emplace_front(pData->elapsedTime);
 			}
 			else
 			{
-				stats.emplace(id, ScopeStats(pData->elapsedTime, pData->elapsedTime));
+				stats.emplace(id, ScopeStats{ pData->elapsedTime, pData->elapsedTime });
 			}
 		};
 	};

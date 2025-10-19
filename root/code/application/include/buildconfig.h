@@ -4,6 +4,6 @@
 #define PROFILE
 // #endif // DEBUG
 
-#endif //BUILDCONFIG_H
-
 //#define PREGEN_NOISE
+
+#endif //BUILDCONFIG_H
