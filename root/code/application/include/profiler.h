@@ -20,8 +20,8 @@ namespace Profiler
 	class ScopeTimer
 	{
 	public:
-		static int s_frameNumber;
-		static bool s_paused;
+		static int sFrameNumber;
+		static bool sPaused;
 
 		ScopeTimer(int id, const char* name);
 
@@ -30,7 +30,6 @@ namespace Profiler
 	private:
 		int m_id;
 		const char* m_name;
-
 		std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
 	};
 
@@ -100,7 +99,6 @@ namespace Profiler
 	{
 	public:
 		ScopeProfileData data;
-
 		int id;
 
 		size_t parentIdx;
@@ -124,71 +122,117 @@ namespace Profiler
 			nextSiblingIdx(~0u)
 		{};
 
-		void setData(ScopeProfileData* pData)
+		void setData(const char* n, double startT, double elapsedT)
 		{
-			std::memcpy(&(this->data), pData, sizeof(ScopeProfileData));
+			data.name = n;
+			data.startTime = startT;
+			data.elapsedTime = elapsedT;
 		};
 	};
 	 
 	struct ScopeProfileTree
 	{
 	public:
-		const size_t startIdx = 1;
+		ScopeProfileTree() : 
+			m_nodes(m_sMaxNodesCount),
+			m_openNodes(m_sMaxNodesCount),
+			m_stats(m_sMaxNodesCount) {};
 
-		std::vector<ScopeProfileNode> nodes;
-		std::vector<size_t>  openNodes;
-
-		std::unordered_map<int, ScopeStats> stats;
+		~ScopeProfileTree() {};
 
 		void reset() 
 		{
-			nodes.clear();
-			openNodes.clear();
+			m_nodes.clear();
+			m_openNodes.clear();
 
 			pushNode(~0u, ~0u); // root
-			openNodes.emplace_back(0);
-		}
+			m_openNodes.emplace_back(0);
+		};
 
 		void onNodeOpen(int id)
 		{
-			const size_t parentIdx = openNodes.back();
-			const size_t thisIdx = nodes.size();
+			const size_t parentIdx = m_openNodes.back();
+			const size_t thisIdx = m_nodes.size();
+
+#ifdef _DEBUG
+			if (thisIdx == m_sMaxNodesCount)
+			{
+				std::cerr << "Increase the default capacity of the profiler's node storage!" << "\n";
+			}
+#endif // DEBUG
+
 			pushNode(parentIdx, id);
 
-			ScopeProfileNode& parentNode = nodes[parentIdx];
+			ScopeProfileNode& parentNode = m_nodes[parentIdx];
 			if (parentNode.firstChildIdx == ~0u) {
 				parentNode.firstChildIdx = thisIdx;
 				parentNode.lastChildIdx = thisIdx;
 			}
 			else {
-				nodes[parentNode.lastChildIdx].nextSiblingIdx = thisIdx;
+				m_nodes[parentNode.lastChildIdx].nextSiblingIdx = thisIdx;
 				parentNode.lastChildIdx = thisIdx;
 			}
 
-			openNodes.emplace_back(thisIdx);
+			m_openNodes.emplace_back(thisIdx);
 		};
 		
-		void onNodeClose(ScopeProfileData* pData)
+		void onNodeClose(const char* n, double startT, double elapsedT)
 		{
-			if (openNodes.size() <= 1) return;
-			const size_t lastOpenIdx = openNodes.back();
-			nodes[lastOpenIdx].setData(pData);
-			openNodes.pop_back();
+			if (m_openNodes.size() <= 1) return;
+			const size_t lastOpenIdx = m_openNodes.back();
+			m_nodes[lastOpenIdx].setData(n, startT, elapsedT);
+			m_openNodes.pop_back();
 
-			storeStats(pData, nodes[lastOpenIdx].id);
+			storeStats(&m_nodes[lastOpenIdx].data, m_nodes[lastOpenIdx].id);
+		};
+
+		const ScopeProfileNode& getNode(int idx) const
+		{
+			return m_nodes[idx];
+		};
+
+		const ScopeStats& getStats(int idKey) const
+		{
+			return m_stats.at(idKey);
+		};
+
+		const ScopeStats& getOrCreateStats(int idKey)
+		{
+			return m_stats[idKey];
+		};
+
+		bool hasStatsFor(int idKey) const
+		{
+			return m_stats.find(idKey) != m_stats.end();
+		};
+
+		size_t getNodesCount() const 
+		{
+			return m_nodes.size();
+		};
+
+		size_t getRootIdx() const
+		{
+			return m_sStartIdx;
 		};
 
 	private:
+		static const size_t m_sStartIdx = 1;
+		static const size_t m_sMaxNodesCount = 64;
+		std::vector<ScopeProfileNode> m_nodes;
+		std::vector<size_t> m_openNodes;
+		std::unordered_map<int, ScopeStats> m_stats;
+
 		void pushNode(size_t parent, int id)
 		{
-			nodes.emplace_back(id, parent);
+			m_nodes.emplace_back(id, parent);
 		};
 
 		void storeStats(ScopeProfileData* pData, int id)
 		{
-			auto it = stats.find(id);
+			auto it = m_stats.find(id);
 
-			if (it != stats.end())
+			if (it != m_stats.end())
 			{
 				ScopeStats& nodeStats = it->second;
 				nodeStats.maxElapsedTime = std::max(nodeStats.maxElapsedTime, pData->elapsedTime);
@@ -197,7 +241,7 @@ namespace Profiler
 			}
 			else
 			{
-				stats.emplace(id, ScopeStats{ pData->elapsedTime, pData->elapsedTime });
+				m_stats.emplace(id, ScopeStats{ pData->elapsedTime, pData->elapsedTime });
 			}
 		};
 	};

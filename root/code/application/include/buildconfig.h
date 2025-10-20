@@ -1,8 +1,8 @@
 #ifndef BUILDCONFIG_H
 
-// #ifdef DEBUG
-#define PROFILE
-// #endif // DEBUG
+#ifdef _DEBUG
+	#define PROFILE
+#endif // _DEBUG
 
 //#define PREGEN_NOISE
 

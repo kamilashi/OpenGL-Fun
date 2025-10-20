@@ -4,12 +4,12 @@ namespace Profiler
 {
 	static ScopeProfileTree profileTree;
 
-	int  ScopeTimer::s_frameNumber = 0;
-	bool ScopeTimer::s_paused = false;
+	int  ScopeTimer::sFrameNumber = 0;
+	bool ScopeTimer::sPaused = false;
 
 	ScopeTimer::ScopeTimer(int id, const char* name) : m_id(id), m_name(name)
 	{
-		if (s_paused)
+		if (sPaused)
 		{
 			return;
 		}
@@ -21,7 +21,7 @@ namespace Profiler
 
 	ScopeTimer::~ScopeTimer()
 	{
-		if (s_paused)
+		if (sPaused)
 		{
 			return;
 		}
@@ -40,9 +40,7 @@ namespace Profiler
 
 		double elapsedTime = end - start;
 
-		ScopeProfileData data = ScopeProfileData(m_name, start, elapsedTime);
-
-		profileTree.onNodeClose(&data); // change this
+		profileTree.onNodeClose(m_name, start, elapsedTime);
 	};
 
 	void InitProfiler()
@@ -51,12 +49,12 @@ namespace Profiler
 
 	void OnStartFrame()
 	{
-		if (!ScopeTimer::s_paused)
+		if (!ScopeTimer::sPaused)
 		{
 			profileTree.reset();
 		}
 
-		ScopeTimer::s_frameNumber++;
+		ScopeTimer::sFrameNumber++;
 	}
 
 	void OnEndFrame()
@@ -102,14 +100,14 @@ namespace Profiler
 	{
 		if (idx == ~0u) return;
 
-		const ScopeProfileNode& node = profileTree.nodes[idx];
+		const ScopeProfileNode& node = profileTree.getNode(idx);
 
-		const ScopeStats& statsIt = profileTree.stats[node.id];
+		const ScopeStats& statsIt = profileTree.getOrCreateStats(node.id);
 
 		const std::string line = FormatProfileRowIndented(node.data, statsIt, depth);
 		ImGui::TextUnformatted(line.c_str());
 
-		for (size_t child = node.firstChildIdx; child != ~0u; child = profileTree.nodes[child].nextSiblingIdx)
+		for (size_t child = node.firstChildIdx; child != ~0u; child = profileTree.getNode(child).nextSiblingIdx)
 		{
 			PrintImGuiNode(child, depth + 1);
 		}
@@ -118,14 +116,14 @@ namespace Profiler
 	void DrawImGui()
 	{
 		ImGui::Begin("Profiler");
-		ImGui::Checkbox("Pause", &ScopeTimer::s_paused);
+		ImGui::Checkbox("Pause", &ScopeTimer::sPaused);
 
-		ImGui::Text("Frame %08llu | Duration - real (ms) | - max (ms) | - min (ms) | - avg in %u fr (ms) | Scope ", static_cast<unsigned long long>(ScopeTimer::s_frameNumber), ScopeStats::movingAverageWindowSize);
+		ImGui::Text("Frame %08llu | Duration - real (ms) | - max (ms) | - min (ms) | - avg in %u fr (ms) | Scope ", static_cast<unsigned long long>(ScopeTimer::sFrameNumber), ScopeStats::movingAverageWindowSize);
 		ImGui::Separator();
 
-		if (profileTree.nodes.size() > 1)
+		if (profileTree.getNodesCount() > 1)
 		{
-			PrintImGuiNode(profileTree.startIdx, 0);
+			PrintImGuiNode(profileTree.getRootIdx(), 0);
 		}
 
 		ImGui::End();
