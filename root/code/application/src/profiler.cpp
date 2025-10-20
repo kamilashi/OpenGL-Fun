@@ -4,9 +4,6 @@ namespace Profiler
 {
 	static ScopeProfileTree profileTree;
 
-	int  ScopeTimer::sFrameNumber = 0;
-	bool ScopeTimer::sPaused = false;
-
 	ScopeTimer::ScopeTimer(int id, const char* name) : m_id(id), m_name(name)
 	{
 		if (sPaused)
