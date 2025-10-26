@@ -4,79 +4,92 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-extern void UI::showSceneUiWidget(SceneControlData* pSceneControlData)
+namespace UI
 {
-	ImGui::Begin("Scene Controller");
-
-	if (ImGui::CollapsingHeader("Terrain Generation"))
+	void showSceneUiWidget(SceneControlData* pSceneControlData)
 	{
-		ImGui::InputFloat("Lacunarity", &pSceneControlData->lacunarity, 1.5f, 16.0f, "%.3f");
+		ImGui::Begin("Scene Controller");
 
-		ImGui::InputFloat3("Peak Amplitudes", pSceneControlData->peakAmplitudes);
-
-		ImGui::InputFloat3("Erosion Intensities", pSceneControlData->erosionIntensities);
-
-		ImGui::InputFloat2("Sample Offset", pSceneControlData->sampleOffset);
-	}
-
-	if (ImGui::CollapsingHeader("Lighting"))
-	{
-		ImGui::InputFloat3("Sun Position", pSceneControlData->mainLightPos);
-	}
-	
-	if (ImGui::CollapsingHeader("Jet"))
-	{
-		ImGui::InputFloat3("Root Position", pSceneControlData->jetPosition);
-	}
-
-	if (ImGui::CollapsingHeader("Simulation"))
-	{
-		ImGui::Checkbox("Orbit Scene", &pSceneControlData->orbitScene);
-		ImGui::InputFloat("Orbit Speed", &pSceneControlData->sceneOrbitSpeed, 0.01f, 2.0f, "%.3f");
-	}
-
-	if (ImGui::CollapsingHeader("Debug"))
-	{
-		ImGui::Checkbox("Show Debug Map", &pSceneControlData->showShadowDepthMap);
-
-		const char* debugTexNames[] =
+		if (ImGui::CollapsingHeader("Terrain Generation"))
 		{
-			"Shadow Map", "Noise Map"
+			ImGui::InputFloat("Lacunarity", &pSceneControlData->lacunarity, 1.5f, 16.0f, "%.3f");
+
+			ImGui::InputFloat3("Peak Amplitudes", pSceneControlData->peakAmplitudes);
+
+			ImGui::InputFloat3("Erosion Intensities", pSceneControlData->erosionIntensities);
+
+			ImGui::InputFloat2("Sample Offset", pSceneControlData->sampleOffset);
+		}
+
+		if (ImGui::CollapsingHeader("Lighting"))
+		{
+			ImGui::InputFloat3("Sun Position", pSceneControlData->mainLightPos);
+		}
+
+		if (ImGui::CollapsingHeader("Jet"))
+		{
+			ImGui::InputFloat3("Root Position", pSceneControlData->jetPosition);
+		}
+
+		if (ImGui::CollapsingHeader("Simulation"))
+		{
+			ImGui::Checkbox("Orbit Scene", &pSceneControlData->orbitScene);
+			ImGui::InputFloat("Orbit Speed", &pSceneControlData->sceneOrbitSpeed, 0.01f, 2.0f, "%.3f");
+		}
+
+		if (ImGui::CollapsingHeader("Debug"))
+		{
+			ImGui::Checkbox("Show Debug Map", &pSceneControlData->showShadowDepthMap);
+
+			const char* debugTexNames[] =
+			{
+				"Shadow Map", "Noise Map"
+			};
+
+			ImGui::Combo("Debug Texture", &pSceneControlData->currentDebugTextureIdx, debugTexNames, IM_ARRAYSIZE(debugTexNames));
+		}
+
+		ImGui::Separator();
+
+		const char* presetNames[] =
+		{
+			"Cappadocia", "Patagonia"
 		};
 
-		ImGui::Combo("Debug Texture", &pSceneControlData->currentDebugTextureIdx, debugTexNames, IM_ARRAYSIZE(debugTexNames));
+		static int presetIdx;
+		ImGui::Combo("Preset", &presetIdx, presetNames, IM_ARRAYSIZE(presetNames));
+
+		if (pSceneControlData->currentPresetIdx != presetIdx)
+		{
+			pSceneControlData->set(presetIdx);
+		}
+
+		/*
+			if (ImGui::SmallButton("Reset to Default"))
+			{
+				pSceneControlData->fillPreset1();
+			}*/
+
+		ImGui::End();
 	}
 
-	ImGui::Separator();
-
-	const char* presetNames[] =
+	void showRuntimeUiWidget(RuntimeControlData* pViewportControlData)
 	{
-		"Cappadocia", "Patagonia"
-	};
+		ImGui::Begin("Runtime Controller");
 
-	static int presetIdx;
-	ImGui::Combo("Preset", &presetIdx, presetNames, IM_ARRAYSIZE(presetNames));
+		ImGui::Checkbox("Pause", &pViewportControlData->isPaused);
 
-	if (pSceneControlData->currentPresetIdx != presetIdx)
-	{
-		pSceneControlData->set(presetIdx);
+		ImGui::End();
 	}
 
-/*
-	if (ImGui::SmallButton("Reset to Default"))
+	void ImGuiFrameProfileVisualizer::visualizeFrameData(const Profiler::FrameProfileData& frameData)
 	{
-		pSceneControlData->fillPreset1();
-	}*/
+		ImGui::Begin("Profiler");
+		ImGui::Checkbox("Pause", &Profiler::ScopeTimer::sIsPaused);
 
-	ImGui::End();
-}
-
-
-extern void UI::showRuntimeUiWidget(RuntimeControlData* pViewportControlData)
-{
-	ImGui::Begin("Runtime Controller");
-
-	ImGui::Checkbox("Pause", &pViewportControlData->isPaused);
-
-	ImGui::End();
+		ImGui::Text(frameData.header);
+		ImGui::Separator();
+		ImGui::Text(frameData.body);
+		ImGui::End();
+	}
 }

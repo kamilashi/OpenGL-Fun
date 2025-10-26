@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "profiler.h"
+
 namespace UI
 {
 	// depends on the terrain shader implementation
@@ -96,8 +98,14 @@ namespace UI
 		bool isPaused = false;
 	};
 
-	extern void showSceneUiWidget(SceneControlData* pSceneControlData);
-	extern void showRuntimeUiWidget(RuntimeControlData* pViewportControlData);
+	void showSceneUiWidget(SceneControlData* pSceneControlData);
+	void showRuntimeUiWidget(RuntimeControlData* pViewportControlData);
+
+	class ImGuiFrameProfileVisualizer : public Profiler::FrameDataVisualizer
+	{
+	public:
+		void visualizeFrameData(const Profiler::FrameProfileData& frameData) override;
+	};
 }
 
 #endif

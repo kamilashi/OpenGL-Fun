@@ -82,8 +82,6 @@ int Application::runWindow()
 	// GUI
 	setupImGUI(window, primaryMonitor);
 
-	PROFILER_INIT();
-
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		return -1;
@@ -91,6 +89,7 @@ int Application::runWindow()
 
 	UI::SceneControlData sceneControlData;
 	UI::RuntimeControlData runtimeControl;
+	UI::ImGuiFrameProfileVisualizer profileVisualizer;
 	sceneControlData.fillPreset0();
 
 	Scene scene = Scene();
@@ -121,7 +120,6 @@ int Application::runWindow()
 			timeElapsed += timeNow - timeLastFrame;
 		}
 
-
 		UI::showSceneUiWidget(&sceneControlData);
 		UI::showRuntimeUiWidget(&runtimeControl);
 
@@ -133,7 +131,7 @@ int Application::runWindow()
 		timeLastFrame = timeNow;
 		}
 
-		PROFILER_END_FRAME();
+		PROFILER_END_FRAME(&profileVisualizer);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
