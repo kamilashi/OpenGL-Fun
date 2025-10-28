@@ -1,8 +1,6 @@
 #ifndef PROFILER_H
 #define PROFILER_H
 
-#include <vector>
-#include <unordered_map>
 #include <chrono>
 
 #include "buildconfig.h"
