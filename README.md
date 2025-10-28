@@ -2,7 +2,7 @@
 
 This is a WIP project aimed at familiarizing myself with OpenGL and graphics APIs in general.
 
-Currently the jet model is animated flying over a simple scrolling terrain. The terrain is generated via the Fractal Brownian Motion and eroded based on the height gradients. 
+Currently the jet model is animated flying over a simple scrolling terrain. The terrain is generated via the Fractal Brownian Motion and eroded based on the height gradients. The project also implements a compact scope-based profiler for single-threaded workflows. Timings are collected into a node tree and traversed with a custom iterator, then the current frame is streamed to an ImGui widget through a small interface.
 
 ![render image](root/assets/images/cover.png "Viewport screenshot")
 
