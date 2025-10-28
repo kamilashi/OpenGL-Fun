@@ -1,4 +1,9 @@
 #include "profiler.h"
+#include <cfloat>
+#include <limits>
+#include <cstring>
+#include <cstdio>
+#include <algorithm>
 
 namespace Profiler
 {
@@ -102,13 +107,12 @@ namespace Profiler
 				return 0;
 			}
 
-			const size_t elementCount = std::min(m_windowSizeCap, movingAverageWindowSize);
 			double ave = 0;
-			for (int i = 0; i < elementCount; i++)
+			for (size_t i = 0; i < m_windowSizeCap; i++)
 			{
 				ave += m_movingAveWindow[i];
 			}
-			ave /= static_cast<double>(elementCount);
+			ave /= static_cast<double>(m_windowSizeCap);
 			return ave;
 		}
 
@@ -205,12 +209,17 @@ namespace Profiler
 			m_nodes.reserve(m_sMaxNodesCount);
 			m_openNodes.reserve(m_sMaxNodesCount);
 			m_stats.reserve(m_sMaxNodesCount);
+			reset();
 		}
 
 		~ScopeProfileTree() {}
 
 		iterator begin()
 		{
+			if (m_nodes.size() <= m_sStartIdx)
+			{
+				return end(); // skip empty root
+			}
 			return iterator{ &m_nodes[getRootIdx()], this, 0 };
 		}
 
@@ -259,7 +268,10 @@ namespace Profiler
 
 		void onNodeClose(const char* n, double startT, double elapsedT)
 		{
-			if (m_openNodes.size() <= 1) return;
+			if (m_openNodes.size() <= 1)
+			{
+				return;
+			}
 			const size_t lastOpenIdx = m_openNodes.back();
 			m_nodes[lastOpenIdx].setData(n, startT, elapsedT);
 			m_openNodes.pop_back();
@@ -267,7 +279,7 @@ namespace Profiler
 			storeStats(&m_nodes[lastOpenIdx].data, m_nodes[lastOpenIdx].id);
 		}
 
-		const ScopeProfileNode& getNode(int idx)
+		const ScopeProfileNode& getNode(size_t idx) const
 		{
 			return m_nodes.at(idx);
 		}
@@ -322,12 +334,12 @@ namespace Profiler
 			}
 		}
 
-		ScopeProfileNode* getNodePtr(int idx)
+		ScopeProfileNode* getNodePtr(size_t idx)
 		{
 			return &m_nodes.at(idx);
 		}
 
-		ScopeProfileNode& getNodeRef(int idx)
+		ScopeProfileNode& getNodeRef(size_t idx)
 		{
 			return m_nodes.at(idx);
 		}
@@ -417,7 +429,6 @@ namespace Profiler
 
 		snprintf(pFrameData->header, FrameProfileData::headerSize, "Frame %08llu | Duration - real (ms) | - max (ms) | - min (ms) | - avg in %zu fr (ms) | Scope \n", static_cast<unsigned long long>(ScopeTimer::sFrameNumber), ScopeStats::movingAverageWindowSize);
 
-		int depth = 0;
 		for (auto it = profileTree.begin(); it != profileTree.end(); it++)
 		{
 			const ScopeProfileNode& node = *it;
