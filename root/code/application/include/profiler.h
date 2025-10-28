@@ -13,7 +13,7 @@ namespace Profiler
 	struct FrameProfileData
 	{
 		static const size_t headerSize = 128;
-		static const size_t bodySize = 256;
+		static const size_t bodySize = 1024;
 		char header[headerSize];
 		char body[bodySize];
 	};
