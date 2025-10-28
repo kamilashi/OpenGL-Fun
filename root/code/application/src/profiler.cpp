@@ -2,7 +2,7 @@
 
 namespace Profiler
 {
-	static constexpr size_t InvalidNodeIdx = std::numeric_limits<size_t>::max();
+	static const size_t InvalidNodeIdx = std::numeric_limits<size_t>::max();
 
 	struct ScopeProfileData
 	{
@@ -72,6 +72,7 @@ namespace Profiler
 			minElapsedTime(FLT_MAX),
 			maxElapsedTime(0.0f),
 			m_movingAveHeadIdx(0),
+			m_windowSizeCap(0),
 			m_movingAveWindow{}
 		{}
 
@@ -79,6 +80,7 @@ namespace Profiler
 			minElapsedTime(minTime),
 			maxElapsedTime(maxTime),
 			m_movingAveHeadIdx(0),
+			m_windowSizeCap(0),
 			m_movingAveWindow{}
 		{}
 
@@ -86,22 +88,34 @@ namespace Profiler
 		{
 			m_movingAveWindow[m_movingAveHeadIdx] = time;
 			m_movingAveHeadIdx = m_movingAveHeadIdx == movingAverageWindowSize - 1 ? 0 : m_movingAveHeadIdx + 1;
+
+			if (m_windowSizeCap < movingAverageWindowSize)
+			{
+				m_windowSizeCap++;
+			}
 		}
 
 		double getMovingAverage() const
 		{
+			if (m_windowSizeCap == 0)
+			{
+				return 0;
+			}
+
+			const size_t elementCount = std::min(m_windowSizeCap, movingAverageWindowSize);
 			double ave = 0;
-			for (int i = 0; i < movingAverageWindowSize; i++)
+			for (int i = 0; i < elementCount; i++)
 			{
 				ave += m_movingAveWindow[i];
 			}
-			ave /= movingAverageWindowSize;
+			ave /= static_cast<double>(elementCount);
 			return ave;
 		}
 
 	private:
-		double m_movingAveWindow[movingAverageWindowSize];
 		size_t m_movingAveHeadIdx;
+		size_t m_windowSizeCap;
+		double m_movingAveWindow[movingAverageWindowSize];
 	};
 
 	class ScopeProfileTree
