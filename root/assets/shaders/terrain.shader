@@ -85,7 +85,7 @@ void main()
         if(dot(aNormal, vec3(0.0, 1.0, 0.0)) > 0.0)
         {
             float step = 1.0 / 257.0;
-            float worldStepScale = 1.0; //0.007812; // must correspond to the one use in noisebake pass!
+            float worldStepScale = 1.0; //0.007812; // must correspond to the one used in noisebake pass!
 
             vec2 gradient = getHeightGradient(heightOffset, TexCoord, step, worldStepScale, uFbmNoiseMap);
             Normal = normalFromHeight(gradient);

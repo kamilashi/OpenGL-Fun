@@ -4,17 +4,33 @@
 
 vec2 getHeightGradient(float centerHeight, vec2 uv, float step, vec3 intensity, vec3 erosionIntensity, float baseScale, float lacunarity, float worldStepScale)
 {
+    float halfStep = step * 0.5;
+    float hx_r  = fbmHeight(uv + vec2(halfStep, 0), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
+    float hz_r  = fbmHeight(uv + vec2(0, halfStep), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
+
+    float hx_l = fbmHeight(uv + vec2(-halfStep, 0), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
+    float hz_l  = fbmHeight(uv + vec2(0, -halfStep), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
+
+    //vec2 worldScale = vec2(2.0, 2.0);
+    vec2 worldScale = vec2(worldStepScale, worldStepScale);
+    vec2 gradient = getGradientLinear2D(hx_r, hx_l, hz_r, hz_l, step, worldScale);
+    return gradient;
+}
+
+vec2 getHeightGradientFromCenter(float centerHeight, vec2 uv, float step, vec3 intensity, vec3 erosionIntensity, float baseScale, float lacunarity, float worldStepScale)
+{
     float hx  = fbmHeight(uv + vec2(step, 0), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
     float hz  = fbmHeight(uv + vec2(0, step), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
 
-    vec2 worldScale = vec2(2.0, 2.0);
+    //vec2 worldScale = vec2(2.0, 2.0);
+    vec2 worldScale = vec2(worldStepScale, worldStepScale);
     vec2 gradient = getGradient(centerHeight, hx, hz, step, worldScale);
     return gradient;
 }
 
-vec3 normalFromHeight(vec2 gradient) 
+vec3 normalFromHeight(vec2 gradientFromCenter, float step) 
 {   
-    vec3 n = vec3(-gradient.x, 1.0, -gradient.y);
+    vec3 n = vec3(-gradientFromCenter.y, 1.0, gradientFromCenter.x);
     return normalize(n);
 }
 
@@ -56,9 +72,9 @@ void main()
         vec2 sampleCoords = TexCoord + vec2(uTime * scrollSpeed, 0) + uSampleOffset;
 
         float sampleScale = 1.0;
-        float worldStepScale = 1.0;
+        float worldStepScale = 2.0;
 
-        float step = 0.01;
+        float step = 0.0039;
         float heightOffset = fbmHeight(sampleCoords, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity, step, worldStepScale);
         float offsetCompensation = 1.5;
        
@@ -69,10 +85,10 @@ void main()
             localPos.y = aPos.y;
         }
 
-        if(dot(aNormal, vec3(0.0, 1.0, 0.0)) > 0.0)
+        if(aNormal.y > 0.0)
         {
             vec2 gradient = getHeightGradient(heightOffset, sampleCoords, step, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity, worldStepScale);
-            Normal = normalFromHeight(gradient);
+            Normal = normalFromHeight(gradient, step);
         }
     }
 

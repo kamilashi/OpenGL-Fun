@@ -11,13 +11,13 @@
 
     float ditherFactor = 1.0;
     // total light                 // total shade
-    if(random > (1.0 + dotScaled)  ||  random > (1.0 - dotScaled))
+    if(random > (1.0 + dotScaled) ||  random > (1.0 - dotScaled))
     {
         ditherFactor = 0.0;
     }
     
 
-    float maxBias  = 0.01;   
+    float maxBias  = 0.008;   
     float slopeScale = 0.01;    
 
     float bias = max(slopeScale * (1.0 - max(-dotPr, 0)), maxBias);
@@ -43,3 +43,4 @@
     vec3 diffuse = mix(color, ditherColor, ditherFactor);
 
     FragColor = vec4( (diffuse * (1 - depth)) * uMainColor, 1.0);
+    //FragColor = vec4( norm, 1.0);
