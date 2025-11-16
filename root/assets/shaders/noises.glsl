@@ -29,7 +29,6 @@ float gradientNoise(vec2 p)
 
 float GradientNoise01(vec2 UV, float Scale)
 {
-   // UV.x *= -1; // make it work with a right-handed system!
     return 0.5 + 0.5 * gradientNoise(UV * Scale);
 }
 

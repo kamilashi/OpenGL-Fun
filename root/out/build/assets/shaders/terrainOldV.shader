@@ -30,7 +30,6 @@ float gradientNoise(vec2 p)
 
 float GradientNoise01(vec2 UV, float Scale)
 {
-   // UV.x *= -1; // make it work with a right-handed system!
     return 0.5 + 0.5 * gradientNoise(UV * Scale);
 }
 
@@ -140,9 +139,10 @@ vec2 getHeightGradientFromCenter(float centerHeight, vec2 uv, float step, vec3 i
     return gradient;
 }
 
-vec3 normalFromHeight(vec2 gradientFromCenter, float step) 
+vec3 normalFromHeight(vec2 gradient, float step) 
 {   
-    vec3 n = vec3(-gradientFromCenter.y, 1.0, gradientFromCenter.x);
+    //vec3 n = vec3(-gradient.y, 1.0, -gradient.x); // fixed
+    vec3 n = vec3(gradient.x, 1.0, gradient.y); // old
     return normalize(n);
 }
 
@@ -181,7 +181,7 @@ void main()
     if(aPos.y > 0.0)
     {
         float scrollSpeed = 0.27;
-        vec2 sampleCoords = TexCoord + vec2(uTime * scrollSpeed, 0) + uSampleOffset;
+        vec2 sampleCoords = TexCoord + vec2(0, uTime * scrollSpeed) + uSampleOffset;
 
         float sampleScale = 1.0;
         float worldStepScale = 2.0;

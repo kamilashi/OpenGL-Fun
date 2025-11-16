@@ -98,7 +98,7 @@ void Scene::create(const ViewportParams& viewportParams)
 	jetStartTransform = glm::mat4(1.0f);
 	jetStartTransform = glm::translate(jetStartTransform, glm::vec3(0.0f, 0.7f, -0.0f));
 	jetStartTransform = glm::scale(jetStartTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//jetStartTransform = glm::rotate(jetStartTransform, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	jetTransform = glm::mat4(1.0f);
 	jetColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
