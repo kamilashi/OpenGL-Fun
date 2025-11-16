@@ -36,7 +36,7 @@ namespace UI
 
 			erosionIntensities[0] = 0.1f;
 			erosionIntensities[1] = 0.3f;
-			erosionIntensities[2] = 1.5f;
+			erosionIntensities[2] = 0.2f;
 
 			mainLightPos[0] = 2.0f;
 			mainLightPos[1] = 2.0f;
@@ -55,7 +55,7 @@ namespace UI
 
 		void fillPreset1()
 		{
-			lacunarity = 5.0f;
+			lacunarity = 3.5f;
 
 			peakAmplitudes[0] = 2.0f;
 			peakAmplitudes[1] = 0.5f;

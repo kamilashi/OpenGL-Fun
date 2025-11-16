@@ -30,8 +30,7 @@ vec2 getHeightGradientFromCenter(float centerHeight, vec2 uv, float step, vec3 i
 
 vec3 normalFromHeight(vec2 gradient, float step) 
 {   
-    //vec3 n = vec3(-gradient.y, 1.0, -gradient.x); // fixed
-    vec3 n = vec3(gradient.x, 1.0, gradient.y); // old
+    vec3 n = vec3(gradient.x, 1.0, gradient.y);
     return normalize(n);
 }
 
@@ -73,9 +72,9 @@ void main()
         vec2 sampleCoords = TexCoord + vec2(0, uTime * scrollSpeed) + uSampleOffset;
 
         float sampleScale = 1.0;
-        float worldStepScale = 2.0;
+        float worldStepScale = 1.0;
 
-        float step = 0.0039;
+        float step = 0.01;//0.0039;
         float heightOffset = fbmHeight(sampleCoords, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity, step, worldStepScale);
         float offsetCompensation = 1.5;
        
