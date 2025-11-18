@@ -98,7 +98,6 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
     //float step = 1.0 / 256; //0.1;
     float sampleScale = baseScale;
     float height1 = GradientNoise01(sampleCoords, sampleScale) * intensity.x;
-    //height1 = erode(height1, getNoiseGradient(height1, sampleCoords, step, intensity.x, sampleScale, worldStepScale), erosionIntensity.x);
     height1 = erode(height1, getNoiseGradientLinear2D(sampleCoords, step, intensity.x, sampleScale, worldStepScale), erosionIntensity.x);
     
     sampleScale *= lacunarity;
@@ -112,6 +111,12 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
     float heightOffset = height1 + height2 + height3;
 
     return heightOffset;
+}
+
+vec3 normalFromHeight(vec2 gradient, float step) 
+{   
+    vec3 n = vec3(gradient.x, 1.0, gradient.y);
+    return normalize(n);
 }
 
 //in vec2 SampleCoord;
@@ -131,7 +136,7 @@ void main()
 {
     //vec2 uv = (gl_FragCoord.xy - 0.5) / uTextureSize;
     float scrollSpeed = 0.27;
-    vec2 SampleCoord = TexCoord + vec2(uTime * scrollSpeed, 0) + uSampleOffset;
+    vec2 SampleCoord = TexCoord + vec2(0, uTime * scrollSpeed) + uSampleOffset;
 
     float sampleScale = 1.0;
     float worldStepScale = 1.0;

@@ -97,7 +97,6 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
     //float step = 1.0 / 256; //0.1;
     float sampleScale = baseScale;
     float height1 = GradientNoise01(sampleCoords, sampleScale) * intensity.x;
-    //height1 = erode(height1, getNoiseGradient(height1, sampleCoords, step, intensity.x, sampleScale, worldStepScale), erosionIntensity.x);
     height1 = erode(height1, getNoiseGradientLinear2D(sampleCoords, step, intensity.x, sampleScale, worldStepScale), erosionIntensity.x);
     
     sampleScale *= lacunarity;
@@ -111,6 +110,12 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
     float heightOffset = height1 + height2 + height3;
 
     return heightOffset;
+}
+
+vec3 normalFromHeight(vec2 gradient, float step) 
+{   
+    vec3 n = vec3(gradient.x, 1.0, gradient.y);
+    return normalize(n);
 }
 
 vec2 getHeightGradient(float centerHeight, vec2 uv, float step, vec3 intensity, vec3 erosionIntensity, float baseScale, float lacunarity, float worldStepScale)
@@ -185,7 +190,7 @@ void main()
         float sampleScale = 1.0;
         float worldStepScale = 1.0;
 
-        float step = 0.01;//0.0039;
+        float step = 0.01; //0.0039;
         float heightOffset = fbmHeight(sampleCoords, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity, step, worldStepScale);
         float offsetCompensation = 1.5;
        

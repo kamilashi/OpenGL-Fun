@@ -35,7 +35,7 @@ void main()
 {
     //vec2 uv = (gl_FragCoord.xy - 0.5) / uTextureSize;
     float scrollSpeed = 0.27;
-    vec2 SampleCoord = TexCoord + vec2(uTime * scrollSpeed, 0) + uSampleOffset;
+    vec2 SampleCoord = TexCoord + vec2(0, uTime * scrollSpeed) + uSampleOffset;
 
     float sampleScale = 1.0;
     float worldStepScale = 1.0;

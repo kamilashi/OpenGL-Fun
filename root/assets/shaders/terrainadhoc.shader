@@ -17,23 +17,6 @@ vec2 getHeightGradient(float centerHeight, vec2 uv, float step, vec3 intensity, 
     return gradient;
 }
 
-vec2 getHeightGradientFromCenter(float centerHeight, vec2 uv, float step, vec3 intensity, vec3 erosionIntensity, float baseScale, float lacunarity, float worldStepScale)
-{
-    float hx  = fbmHeight(uv + vec2(step, 0), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
-    float hz  = fbmHeight(uv + vec2(0, step), intensity, erosionIntensity, baseScale, lacunarity, step, worldStepScale);
-
-    //vec2 worldScale = vec2(2.0, 2.0);
-    vec2 worldScale = vec2(worldStepScale, worldStepScale);
-    vec2 gradient = getGradient(centerHeight, hx, hz, step, worldScale);
-    return gradient;
-}
-
-vec3 normalFromHeight(vec2 gradient, float step) 
-{   
-    vec3 n = vec3(gradient.x, 1.0, gradient.y);
-    return normalize(n);
-}
-
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in vec3 aNormal;
@@ -74,7 +57,7 @@ void main()
         float sampleScale = 1.0;
         float worldStepScale = 1.0;
 
-        float step = 0.01; //0.0039;
+        float step = 0.01;//0.0039;
         float heightOffset = fbmHeight(sampleCoords, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity, step, worldStepScale);
         float offsetCompensation = 1.5;
        

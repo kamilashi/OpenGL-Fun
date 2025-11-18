@@ -4,38 +4,16 @@
 
 vec2 getHeightGradient(float centerHeight, vec2 uv, float step, float worldStepScale, sampler2D fbmNoiseTex)
 {
-    float hx  = texture(fbmNoiseTex, uv + vec2(step, 0)).r;
-    float hz  = texture(fbmNoiseTex, uv + vec2(0, step)).r;
+    float halfStep = step * 0.5;
+    float hx_r  = texture(fbmNoiseTex, uv + vec2(halfStep, 0)).r;
+    float hz_r  = texture(fbmNoiseTex, uv + vec2(0, halfStep)).r;
 
-    vec2 worldScale = vec2(worldStepScale, worldStepScale); //vec2(1.0, 1.0);
-    vec2 gradient = getGradient(centerHeight, hx, hz, step, worldScale);
+    float hx_l = texture(fbmNoiseTex, uv + vec2(-halfStep, 0)).r;
+    float hz_l  = texture(fbmNoiseTex, uv + vec2(0, -halfStep)).r;
+
+    vec2 worldScale = vec2(worldStepScale, worldStepScale);
+    vec2 gradient = getGradientLinear2D(hx_r, hx_l, hz_r, hz_l, step, worldScale);
     return gradient;
-}
-
-vec3 normalFromHeight(vec2 gradient) 
-{   
-    vec3 n = vec3(-gradient.x, 1.0, -gradient.y);
-    return normalize(n);
-}
-
-vec3 normalFromGradient4D(vec2 uv, float step, float worldStep, sampler2D fbmNoiseTex) 
-{   
-    float globalAmp = 1;
-    vec2 texel = vec2(step); 
-
-
-    float hL = textureLod(fbmNoiseTex, uv + vec2(-texel.x, 0.0), 0.0).r;
-    float hR = textureLod(fbmNoiseTex, uv + vec2( texel.x, 0.0), 0.0).r;
-    float hD = textureLod(fbmNoiseTex, uv + vec2(0.0, -texel.y), 0.0).r;
-    float hU = textureLod(fbmNoiseTex, uv + vec2(0.0,  texel.y), 0.0).r;
-
-    float dHx = (hR - hL) * 0.5;
-    float dHy = (hU - hD) * 0.5;
-
-    vec3 dPosdU = vec3(worldStep,  dHx * globalAmp, 0.0);
-    vec3 dPosdV = vec3(0.0,        dHy * globalAmp, worldStep);
-
-    return normalize(cross(dPosdV, dPosdU));
 }
 
 layout (location = 0) in vec3 aPos;
@@ -88,7 +66,7 @@ void main()
             float worldStepScale = 1.0; //0.007812; // must correspond to the one used in noisebake pass!
 
             vec2 gradient = getHeightGradient(heightOffset, TexCoord, step, worldStepScale, uFbmNoiseMap);
-            Normal = normalFromHeight(gradient);
+            Normal = normalFromHeight(gradient, step);
             //Normal = normalFromGradient4D(TexCoord, step, worldStepScale, uFbmNoiseMap);
             //Grad = gradient;
         }

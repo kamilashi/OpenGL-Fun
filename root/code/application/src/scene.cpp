@@ -123,9 +123,9 @@ void Scene::create(const ViewportParams& viewportParams)
 	jetModel = AssetLoader::loadModel("jet.obj");
 
 #ifdef PREGEN_NOISE
-	const char* terrainShaderVer = "terrain";
+	const char* terrainShaderVer = "terrainbake";
 #else
-	const char* terrainShaderVer = "terrainold";
+	const char* terrainShaderVer = "terrainadhoc";
 #endif
 
 	defaultDepthShader = Shader("default", true, { "SHADOW_DEPTH_PASS" }, { "SHADOW_DEPTH_PASS" });
