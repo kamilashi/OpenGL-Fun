@@ -56,11 +56,11 @@ namespace Graphics
 		bindTextureToFrameBuffer(&depthMapFBO, pScene->shadowMapTexture.id, GL_DEPTH_ATTACHMENT, GL_NONE, GL_NONE);
 	}
 
-	void render(Scene* pScene, const ViewportParams& viewportParams, const bool showDebugQuad, const float time)
+	void render(Scene* pScene, const ViewportParams& viewportParams, const UI::SceneControlData& sceneControls, const float time)
 	{
 		PROFILE_SCOPE("Render");
 
-#ifdef PREGEN_NOISE
+#ifdef USE_PREGEN
 		pScene->renderPrePass(time);
 #endif
 
@@ -83,8 +83,10 @@ namespace Graphics
 		glCullFace(GL_BACK);
 		pScene->renderMainPass(time);
 
-		if (showDebugQuad)
+		if (sceneControls.showDebugView)
 		{
+			glUseProgram(debugShader.id);
+			debugShader.setCustomUniformI3(debugShader.getLoc("uDebugTexChannelMask"), sceneControls.debugTextureChannelMask);
 			debugShader.setTextureUniform(debugShader.getLoc("uDebugTex"), pScene->getDebugTexture().id);
 
 			debugQuadModel.draw();

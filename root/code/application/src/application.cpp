@@ -126,7 +126,7 @@ int Application::runWindow()
 		scene.update(sceneControlData);
 
 		Simulation::run(&scene, sceneControlData, timeElapsed);
-		Graphics::render(&scene, viewportParams, sceneControlData.showShadowDepthMap, timeElapsed);
+		Graphics::render(&scene, viewportParams, sceneControlData, timeElapsed);
 
 		timeLastFrame = timeNow;
 		}

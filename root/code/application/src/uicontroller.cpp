@@ -39,7 +39,8 @@ namespace UI
 
 		if (ImGui::CollapsingHeader("Debug"))
 		{
-			ImGui::Checkbox("Show Debug Map", &pSceneControlData->showShadowDepthMap);
+			ImGui::Checkbox("Show Debug Map", &pSceneControlData->showDebugView);
+			ImGui::InputInt3("Debug Map Channel Mask", pSceneControlData->debugTextureChannelMask);
 
 			const char* debugTexNames[] =
 			{

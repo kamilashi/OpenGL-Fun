@@ -135,6 +135,11 @@ void Shader::setCustomUniformI2(uint uniformLoc, const int vect[])
 	glUniform2i(uniformLoc, vect[0], vect[1]);
 }
 
+void Shader::setCustomUniformI3(uint uniformLoc, const int vect[])
+{
+	glUniform3i(uniformLoc, vect[0], vect[1], vect[2]);
+}
+
 void Shader::setCustomUniformM4(uint uniformLoc, const glm::mat4& matrix)
 {
 	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, glm::value_ptr(matrix));

@@ -79,6 +79,7 @@ public:
 	void setCustomUniformF3(uint uniformLoc, const float vect[]);
 	void setCustomUniformF2(uint uniformLoc, const float vect[]);
 	void setCustomUniformI2(uint uniformLoc, const int vect[]);
+	void setCustomUniformI3(uint uniformLoc, const int vect[]);
 	void setCustomUniformM4(uint uniformLoc, const glm::mat4& matrix);
 	void setCustomUniformF(uint uniformLoc, float value);
 	void setTextureUniform(uint uniformLoc, uint textureId);

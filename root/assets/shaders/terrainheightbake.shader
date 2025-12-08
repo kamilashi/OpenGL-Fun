@@ -39,8 +39,6 @@ uniform mat4 uProjection;
 uniform sampler2D uFbmNoiseMap;
 uniform ivec2 uTextureSize;
 
-uniform float uTime;
-
 void main() 
 {
     TexCoord = aTexCoord;
@@ -67,8 +65,6 @@ void main()
 
             vec2 gradient = getHeightGradient(heightOffset, TexCoord, step, worldStepScale, uFbmNoiseMap);
             Normal = normalFromHeight(gradient, step);
-            //Normal = normalFromGradient4D(TexCoord, step, worldStepScale, uFbmNoiseMap);
-            //Grad = gradient;
         }
     }
 

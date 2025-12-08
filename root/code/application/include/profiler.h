@@ -49,15 +49,15 @@ namespace Profiler
 #define PROFILER_MACROS_DEFINED
 
 #if defined (PROFILE)							
-#define PROFILE_SCOPE(nameLiteral)			Profiler::ScopeTimer timer(FILELINE_ID, nameLiteral)
-#define PROFILER_START_FRAME() 				Profiler::onStartFrame()
-#define PROFILER_END_FRAME(visualizer) 		Profiler::onEndFrame(visualizer)
-#define PROFILER_END() 						Profiler::endProfiler()							
+	#define PROFILE_SCOPE(nameLiteral)			Profiler::ScopeTimer timer(FILELINE_ID, nameLiteral)
+	#define PROFILER_START_FRAME() 				Profiler::onStartFrame()
+	#define PROFILER_END_FRAME(visualizer) 		Profiler::onEndFrame(visualizer)
+	#define PROFILER_END() 						Profiler::endProfiler()							
 #else
-#define PROFILER_INIT()						do {} while (0)
-#define PROFILE_SCOPE(nameLiteral)			do {} while (0)
-#define PROFILER_END_FRAME(visualizer)		do {} while (0)
-#define PROFILER_END()						do {} while (0)	
+	#define PROFILER_INIT()						do {} while (0)
+	#define PROFILE_SCOPE(nameLiteral)			do {} while (0)
+	#define PROFILER_END_FRAME(visualizer)		do {} while (0)
+	#define PROFILER_END()						do {} while (0)	
 #endif // PROFILE
 
 #endif // PROFILER_MACROS_DEFINED

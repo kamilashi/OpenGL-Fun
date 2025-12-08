@@ -23,10 +23,13 @@ in vec2 TexCoord;
 
 uniform ivec2 uTextureSize;
 uniform float uLacunarity;
+uniform vec3 uAmplitudes;
+uniform vec3 uErosionIntensity;
+
 uniform vec2 uSampleOffset;
 uniform float uTime;
 
-layout(location = 0) out vec3 outNoise;
+layout(location = 0) out float outNoise;
 
 void main() 
 {
@@ -35,14 +38,10 @@ void main()
     vec2 SampleCoord = TexCoord + vec2(0, uTime * scrollSpeed) + uSampleOffset;
 
     float sampleScale = 1.0;
+    float worldStepScale = 1.0;
+    float step =  1.0 / 267.0;
 
-    float noise1 = GradientNoise01(SampleCoord, sampleScale);
-    sampleScale *= uLacunarity;
-    
-    float noise2 = GradientNoise01(SampleCoord, sampleScale);
-    sampleScale *= uLacunarity;
+    float heightOffset = fbmHeight(SampleCoord, uAmplitudes, uErosionIntensity, sampleScale, uLacunarity, step, worldStepScale);
 
-    float noise3 = GradientNoise01(SampleCoord, sampleScale);
-
-    outNoise = vec3(noise1, noise2, noise3);
+    outNoise = heightOffset;
 }

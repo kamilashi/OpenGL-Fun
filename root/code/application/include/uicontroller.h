@@ -20,9 +20,10 @@ namespace UI
 		float erosionIntensities[octaveCount];
 		float mainLightPos[3];
 		float jetPosition[3];
-		bool showShadowDepthMap;
+		bool showDebugView;
 		int currentPresetIdx;
 		int currentDebugTextureIdx = 0;
+		int debugTextureChannelMask[3] = {1, 0, 0};
 		bool orbitScene = false;
 		float sceneOrbitSpeed = 0.140;
 
@@ -49,7 +50,7 @@ namespace UI
 			jetPosition[1] = 0.7f;
 			jetPosition[2] = 0.0f;
 
-			showShadowDepthMap = false;
+			showDebugView = false;
 			currentPresetIdx = 0;
 		}
 
@@ -76,7 +77,7 @@ namespace UI
 			jetPosition[1] = 0.5f;
 			jetPosition[2] = 0.3f;
 
-			showShadowDepthMap = false;
+			showDebugView = false;
 			currentPresetIdx = 1;
 		}
 

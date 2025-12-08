@@ -38,15 +38,22 @@ in vec2 TexCoord;
 in vec3 Normal; 
 in vec3 WorldPos; 
 
+
 out vec4 FragColor;
 
 uniform vec3 uMainColor;
 uniform vec3 uMainLightColor;
 uniform vec3 uMainLightDirection;
+
+uniform ivec3 uDebugTexChannelMask; 
 uniform sampler2D uDebugTex;
 
 void main() 
 {
-    float depthValue = texture(uDebugTex, TexCoord).r;
-    FragColor = vec4(vec3(depthValue), 1.0);
+    vec4 textureSample = texture(uDebugTex, TexCoord);
+    float depthValue1 = textureSample.r * uDebugTexChannelMask.x;
+    float depthValue2 = textureSample.g * uDebugTexChannelMask.y;
+    float depthValue3 = textureSample.b * uDebugTexChannelMask.z;
+
+    FragColor = vec4(depthValue1, depthValue2, depthValue3, 1.0);
 }

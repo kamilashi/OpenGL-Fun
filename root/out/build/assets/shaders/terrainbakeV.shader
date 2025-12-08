@@ -113,7 +113,7 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
 }
 
 vec3 normalFromHeight(vec2 gradient, float step) 
-{   
+{  
     vec3 n = vec3(gradient.x, 1.0, gradient.y);
     return normalize(n);
 }

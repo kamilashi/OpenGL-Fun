@@ -66,20 +66,35 @@ void inline updateJet(Scene* pScene, const UI::SceneControlData& sceneData)
 
 void inline updateTerrainShaders(Scene* pScene, const UI::SceneControlData& sceneData)
 {
-	auto updateShader = [&](Shader& terrainShader) 
+	auto updateAmplitudeNErosion = [&](Shader& shader) 
 	{
-		glUseProgram(terrainShader.id);
-		terrainShader.setCustomUniformF3(terrainShader.getLoc("uAmplitudes"), (sceneData.peakAmplitudes));
-		terrainShader.setCustomUniformF3(terrainShader.getLoc("uErosionIntensity"), (sceneData.erosionIntensities));
-		terrainShader.setCustomUniformF2(terrainShader.getLoc("uSampleOffset"), (sceneData.sampleOffset));
-		terrainShader.setCustomUniformF(terrainShader.getLoc("uLacunarity"), sceneData.lacunarity);
+		glUseProgram(shader.id);
+		shader.setCustomUniformF3(shader.getLoc("uAmplitudes"), (sceneData.peakAmplitudes));
+		shader.setCustomUniformF3(shader.getLoc("uErosionIntensity"), (sceneData.erosionIntensities));
 	};
 
-#ifdef PREGEN_NOISE
-	updateShader(pScene->noiseGenShader);
+	auto updateLacunarityNSampleOffset = [&](Shader& shader)
+	{
+		glUseProgram(shader.id);
+		shader.setCustomUniformF2(shader.getLoc("uSampleOffset"), (sceneData.sampleOffset));
+		shader.setCustomUniformF(shader.getLoc("uLacunarity"), sceneData.lacunarity);
+	};
+
+#ifdef USE_PREGEN
+	#ifdef PREGEN_HEIGHT_ONLY
+		updateAmplitudeNErosion(pScene->noiseGenShader);
+		updateLacunarityNSampleOffset(pScene->noiseGenShader);
 #else
-	updateShader(pScene->terrainShader);
-	updateShader(pScene->terrainDepthShader);
+		updateLacunarityNSampleOffset(pScene->noiseGenShader);
+		updateAmplitudeNErosion(pScene->terrainShader);
+		updateAmplitudeNErosion(pScene->terrainDepthShader);
+	#endif
+#else
+	updateAmplitudeNErosion(pScene->terrainShader);
+	updateLacunarityNSampleOffset(pScene->terrainShader);
+
+	updateAmplitudeNErosion(pScene->terrainDepthShader);
+	updateLacunarityNSampleOffset(pScene->terrainDepthShader);
 #endif
 }
 
@@ -122,8 +137,12 @@ void Scene::create(const ViewportParams& viewportParams)
 	terrainCubeModel = AssetLoader::loadModel("terraincube.obj");
 	jetModel = AssetLoader::loadModel("jet.obj");
 
-#ifdef PREGEN_NOISE
-	const char* terrainShaderVer = "terrainbake";
+#ifdef USE_PREGEN
+	#ifdef PREGEN_HEIGHT_ONLY
+		const char* terrainShaderVer = "terrainheightbake";
+	#else
+		const char* terrainShaderVer = "terrainnoisebake";
+	#endif
 #else
 	const char* terrainShaderVer = "terrainadhoc";
 #endif
@@ -134,7 +153,12 @@ void Scene::create(const ViewportParams& viewportParams)
 	defaultShader = Shader("default");
 	terrainShader = Shader(terrainShaderVer);
 	unlitShader = Shader("unlit");
+
+#ifdef PREGEN_HEIGHT_ONLY
+	noiseGenShader = Shader("heightbake");
+#else
 	noiseGenShader = Shader("noisebake");
+#endif
 
 	glUseProgram(defaultShader.id);
 	defaultShader.setMainLightUniforms(lightColor, lightDirection);
@@ -161,11 +185,17 @@ void Scene::create(const ViewportParams& viewportParams)
 	terrainShader.setTextureUniform(terrainShader.getLoc("shadowMap"), shadowMapTexture.id);
 	defaultShader.setTextureUniform(defaultShader.getLoc("shadowMap"), shadowMapTexture.id);
 
-#ifdef PREGEN_NOISE
+#ifdef USE_PREGEN
 	const int noiseResolution = 257;
 	noiseGenQuadModel = Model(Mesh::Primitive::Quad);
 	noiseMapFBO = ~0x0;
+
+#ifdef PREGEN_HEIGHT_ONLY
 	noiseGenTexture = Texture(noiseResolution, noiseResolution, GL_R32F, GL_RED, GL_FLOAT, GL_CLAMP_TO_EDGE);
+#else
+	noiseGenTexture = Texture(noiseResolution, noiseResolution, GL_RGB32F, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE);
+#endif
+
 	Graphics::bindTextureToFrameBuffer(&noiseMapFBO, noiseGenTexture.id, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0);
 
 	const int texSize[2] = { noiseGenTexture.width, noiseGenTexture.height };

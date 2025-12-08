@@ -111,8 +111,48 @@ float fbmHeight(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float 
     return heightOffset;
 }
 
-vec3 normalFromHeight(vec2 gradient, float step) 
+void getNoiseGradientsLinear2DTexture(vec2 uv, float step, vec3 intensities, float worldStepScale, sampler2D fbmNoiseTex, 
+                  out vec2 gradientScale1,
+                  out vec2 gradientScale2,
+                  out vec2 gradientScale3)
+{
+    float halfStep = step * 0.5;
+    vec3 hx_r  = texture(fbmNoiseTex, uv + vec2(halfStep, 0)).rgb * intensities;
+    vec3 hz_r  = texture(fbmNoiseTex, uv + vec2(0, halfStep)).rgb * intensities;
+
+    vec3 hx_l  = texture(fbmNoiseTex, uv + vec2(-halfStep, 0)).rgb * intensities;
+    vec3 hz_l  = texture(fbmNoiseTex, uv + vec2(0, -halfStep)).rgb * intensities;
+
+    gradientScale1 = getGradientLinear2D(hx_r.x, hx_l.x, hz_r.x, hz_l.x, step, vec2(worldStepScale, worldStepScale));
+    gradientScale2 = getGradientLinear2D(hx_r.y, hx_l.y, hz_r.y, hz_l.y, step, vec2(worldStepScale, worldStepScale));
+    gradientScale3 = getGradientLinear2D(hx_r.z, hx_l.z, hz_r.z, hz_l.z, step, vec2(worldStepScale, worldStepScale));
+}
+
+float fbmHeightTexture(vec2 sampleCoords, vec3 intensity, vec3 erosionIntensity, float step, float worldStepScale, sampler2D fbmNoiseTex)
 {   
+    //float step = 1.0 / 256; //0.1;
+
+    vec2 grad1, grad2, grad3;
+
+    getNoiseGradientsLinear2DTexture(sampleCoords, step, intensity, worldStepScale, fbmNoiseTex, grad1, grad2, grad3);
+    vec4 noisesTex = texture(fbmNoiseTex, sampleCoords);
+
+    float height1 = noisesTex.r * intensity.x;
+    height1 = erode(height1, grad1, erosionIntensity.x);
+    
+    float height2 = noisesTex.g * intensity.y;
+    height2 = erode(height2, grad2, erosionIntensity.y);
+
+    float height3 = noisesTex.b * intensity.z;
+    height3 = erode(height3, grad3, erosionIntensity.z);
+
+    float heightOffset = height1 + height2 + height3;
+
+    return heightOffset;
+}
+
+vec3 normalFromHeight(vec2 gradient, float step) 
+{  
     vec3 n = vec3(gradient.x, 1.0, gradient.y);
     return normalize(n);
 }

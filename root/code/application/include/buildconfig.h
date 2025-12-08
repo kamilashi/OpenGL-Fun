@@ -4,6 +4,7 @@
 	#define PROFILE
 #endif // _DEBUG
 
-//#define PREGEN_NOISE
+#define USE_PREGEN
+//#define PREGEN_HEIGHT_ONLY
 
 #endif //BUILDCONFIG_H

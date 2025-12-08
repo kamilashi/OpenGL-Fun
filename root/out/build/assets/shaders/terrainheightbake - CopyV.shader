@@ -158,70 +158,20 @@ vec3 normalFromHeight(vec2 gradient, float step)
     return normalize(n);
 }
 
-uint hash_u32(uint x) 
-{         
-    x ^= x >> 16;
-    x *= 0x7feb352du;
-    x ^= x >> 15;
-    x *= 0x846ca68bu;
-    x ^= x >> 16;
-    return x;
-}
-
-uint hash_u32(uvec2 v) 
-{ 
-    return hash_u32(v.x ^ (0x9e3779b9u + (v.y<<6) + (v.y>>2)));
-}
-
-float rand01(uvec2 seed) 
+vec2 getHeightGradient(float centerHeight, vec2 uv, float step, vec3 intensity, vec3 erosionIntensity, float worldStepScale, sampler2D fbmNoiseTex)
 {
-    return float(hash_u32(seed)) * (1.0 / 4294967296.0); 
+    float halfStep = step * 0.5;
+    float hx_r  = fbmHeightTexture(uv + vec2(halfStep, 0), intensity, erosionIntensity, step, worldStepScale, fbmNoiseTex);
+    float hz_r  = fbmHeightTexture(uv + vec2(0, halfStep), intensity, erosionIntensity, step, worldStepScale, fbmNoiseTex);
+
+    float hx_l = fbmHeightTexture(uv + vec2(-halfStep, 0), intensity, erosionIntensity, step, worldStepScale, fbmNoiseTex);
+    float hz_l  = fbmHeightTexture(uv + vec2(0, -halfStep), intensity, erosionIntensity, step, worldStepScale, fbmNoiseTex);
+
+    //vec2 worldScale = vec2(2.0, 2.0);
+    vec2 worldScale = vec2(worldStepScale, worldStepScale);
+    vec2 gradient = getGradientLinear2D(hx_r, hx_l, hz_r, hz_l, step, worldScale);
+    return gradient;
 }
-
-vec2 genSeed(vec3 vertexPos, vec2 fraqUV)
-{
-    vec2 seed = vec2((vertexPos.x * vertexPos.y / (fraqUV.x) * 50.0 + vertexPos.z), (vertexPos.z * vertexPos.y / (fraqUV.y) * 50.0 + vertexPos.x));
-
-    return seed;
-}
-
-vec2 genSeed(vec3 vertexPos)
-{
-    vec2 seed = vec2((vertexPos.x * vertexPos.y + vertexPos.z), (vertexPos.z * vertexPos.y + vertexPos.x));
-
-    return seed;
-}
-
-vec2 genSeed(vec2 vertexPos, vec2 fraqUV)
-{
-    vec2 seed = vec2((vertexPos.x / (fraqUV.x) * 50.0), (vertexPos.y / (fraqUV.y) * 50.0));
-
-    return seed;
-}
-
-float remap(float value, float inMin, float inMax, float outMin, float outMax)
-{
-    return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
-}
-
-vec2 remapUV(vec2 uv, vec2 inMin, vec2 inMax, vec2 outMin, vec2 outMax)
-{
-    return outMin + (uv - inMin) * (outMax - outMin) / (inMax - inMin);
-}
-
-vec2 getShadow(vec4 fragPosLightSpace, sampler2D shadowMap, float shadowBias)
-{
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-
-    projCoords = projCoords * 0.5 + 0.5;
-
-    float currentDepth = projCoords.z;
-
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    float shadow = currentDepth - shadowBias > closestDepth  ? 1.0 : 0.0;  
-
-    return vec2(shadow, currentDepth);
-}  
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
@@ -232,6 +182,7 @@ layout (location = 4) in vec3 aBitangent;
 out vec2 TexCoord;
 out vec3 Normal;
 out vec3 WorldPos; 
+out vec2 Grad; 
 
 #ifndef SHADOW_DEPTH_PASS
     out vec4 FragPosLightSpace;
@@ -242,15 +193,46 @@ uniform mat4 uTransform;
 uniform mat4 uView;
 uniform mat4 uProjection;
 
+uniform vec3 uAmplitudes;
+uniform vec3 uErosionIntensity;
+uniform sampler2D uFbmNoiseMap;
+uniform ivec2 uTextureSize;
+
 void main() 
 {
-    WorldPos = vec3(uTransform * vec4(aPos, 1.0));
+    TexCoord = aTexCoord;
+    vec3 localPos = aPos;
+    Normal = aNormal;
+    
+     if(aPos.y > 0.0)
+    {
+        vec2 sampleCoords = TexCoord;
+
+        float sampleScale = 1.0;
+        float worldStepScale = 1.0;
+
+        float step = 0.01;//0.0039;
+        float heightOffset = fbmHeightTexture(sampleCoords, uAmplitudes, uErosionIntensity, step, worldStepScale, uFbmNoiseMap);
+        float offsetCompensation = 1.5;
+       
+        localPos.y += heightOffset - offsetCompensation;
+        
+        if(localPos.y < -1)
+        {
+            localPos.y = aPos.y;
+        }
+
+        if(aNormal.y > 0.0)
+        {
+            vec2 gradient = getHeightGradient(heightOffset, sampleCoords, step, uAmplitudes, uErosionIntensity, worldStepScale, uFbmNoiseMap);
+            Normal = normalFromHeight(gradient, step);
+        }
+    }
+
+    WorldPos = vec3(uTransform * vec4(localPos, 1.0));
 #ifndef SHADOW_DEPTH_PASS
     FragPosLightSpace = uLightSpaceMatrix * vec4(WorldPos, 1.0);
 #endif
     gl_Position = uProjection * uView * vec4(WorldPos, 1.0);
-
-    TexCoord = aTexCoord;
-    Normal = aNormal;
 }
 

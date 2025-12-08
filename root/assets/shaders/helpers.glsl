@@ -40,7 +40,15 @@ vec2 genSeed(vec2 vertexPos, vec2 fraqUV)
     return seed;
 }
 
+float remap(float value, float inMin, float inMax, float outMin, float outMax)
+{
+    return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
+}
 
+vec2 remapUV(vec2 uv, vec2 inMin, vec2 inMax, vec2 outMin, vec2 outMax)
+{
+    return outMin + (uv - inMin) * (outMax - outMin) / (inMax - inMin);
+}
 
 vec2 getShadow(vec4 fragPosLightSpace, sampler2D shadowMap, float shadowBias)
 {
